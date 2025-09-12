@@ -81,8 +81,13 @@ export default function Home() {
       }
       
       const price = clinic.price[activeTab];
+      const hasPrice = price !== undefined && price !== null;
+
+      // When filtering, we only want to show clinics that have the item available
       if (clinic.status[activeTab] !== 'available') return false;
-      if (price && (price < priceRange[0] || price > priceRange[1])) {
+      
+      // Price filter should only apply if the clinic has a price for the active product
+      if (hasPrice && (price < priceRange[0] || price > priceRange[1])) {
         return false;
       }
 
