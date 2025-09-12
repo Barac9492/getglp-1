@@ -7,7 +7,7 @@ import type { Clinic, Report } from '@/lib/types';
 import FilterPanel from '@/components/map/filter-panel';
 import MapView from '@/components/map/map-view';
 import Header from '@/components/layout/header';
-import { Info } from 'lucide-react';
+import { Info, Share2 } from 'lucide-react';
 import Legend from '@/components/map/legend';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -192,12 +192,21 @@ export default function Home() {
                 <MapView clinics={filteredClinics} filters={productFilters} />
               </TabsContent>
             </Tabs>
-            <div className="absolute bottom-4 left-4 z-10 bg-black/50 text-white text-xs p-2 rounded-md max-w-xs md:max-w-sm flex items-start gap-2">
-                <Info className="h-4 w-4 flex-shrink-0 mt-0.5" />
-                <div>
-                    <p className="font-bold">면책 조항</p>
-                    <p>본 정보는 크라우드소싱 기반이며 정확성을 보장하지 않습니다. 방문 전 반드시 의료 기관에 직접 확인하세요.</p>
-                </div>
+            <div className="absolute bottom-4 left-4 z-10 space-y-2 max-w-xs md:max-w-sm">
+              <div className="bg-primary/80 text-primary-foreground text-xs p-2 rounded-md flex items-start gap-2 backdrop-blur-sm">
+                  <Share2 className="h-4 w-4 flex-shrink-0 mt-0.5" />
+                  <div>
+                      <p className="font-bold">함께 만드는 지도</p>
+                      <p>더 많이 제보하고 공유할수록 정보가 정확해집니다!</p>
+                  </div>
+              </div>
+              <div className="bg-black/50 text-white text-xs p-2 rounded-md flex items-start gap-2">
+                  <Info className="h-4 w-4 flex-shrink-0 mt-0.5" />
+                  <div>
+                      <p className="font-bold">면책 조항</p>
+                      <p>본 정보는 크라우드소싱 기반이며 정확성을 보장하지 않습니다. 방문 전 반드시 의료 기관에 직접 확인하세요.</p>
+                  </div>
+              </div>
             </div>
             <div className="absolute bottom-4 right-4 z-10">
               <Legend filters={productFilters} />
