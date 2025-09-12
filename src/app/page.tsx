@@ -111,19 +111,17 @@ export default function Home() {
       <main className="flex-1 relative">
         <MapView clinics={filteredClinics} filters={filters} />
         <div className="absolute top-4 left-4 right-4 md:left-auto md:w-[24rem] lg:w-[26rem] z-10">
-           <Accordion type="single" collapsible defaultValue="filters">
+           <Accordion type="single" collapsible defaultValue="filters" className="bg-background/90 backdrop-blur-sm rounded-lg shadow-lg">
             <AccordionItem value="filters" className="border-none">
-               <div className="bg-background/90 backdrop-blur-sm rounded-lg shadow-lg">
-                <AccordionTrigger className="p-4 hover:no-underline">
-                  <div className="flex items-center gap-2 font-headline">
-                    <SlidersHorizontal className="h-5 w-5" />
-                    <span className="text-lg">필터</span>
-                  </div>
-                </AccordionTrigger>
-                <AccordionContent className="border-t">
-                    <FilterPanel filters={filters} setFilters={setFilters} />
-                </AccordionContent>
-              </div>
+              <AccordionTrigger className="p-4 hover:no-underline">
+                <div className="flex items-center gap-2 font-headline">
+                  <SlidersHorizontal className="h-5 w-5" />
+                  <span className="text-lg">필터</span>
+                </div>
+              </AccordionTrigger>
+              <AccordionContent className="border-t">
+                  <FilterPanel filters={filters} setFilters={setFilters} />
+              </AccordionContent>
             </AccordionItem>
           </Accordion>
         </div>
