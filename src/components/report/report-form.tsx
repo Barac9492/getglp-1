@@ -1,3 +1,4 @@
+
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -27,6 +28,8 @@ import { clinics, items } from '@/lib/mock-data';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
 import { saveReport } from '@/app/actions/report';
+import { auth } from '@/lib/firebase';
+import { useId } from 'react';
 
 const reportFormSchema = z.object({
   clinicId: z.string({ required_error: '클리닉을 선택해주세요.' }),
@@ -39,6 +42,26 @@ const reportFormSchema = z.object({
 });
 
 export type ReportFormValues = z.infer<typeof reportFormSchema>;
+
+async function callSaveReport(data: ReportFormValues) {
+  const user = auth.currentUser;
+  if (!user) {
+    throw new Error('You must be logged in to submit a report.');
+  }
+  const token = await user.getIdToken();
+
+  const response = await fetch('/api/report', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(data),
+  });
+
+  return response.json();
+}
+
 
 export default function ReportForm() {
     const { toast } = useToast();
@@ -53,20 +76,43 @@ export default function ReportForm() {
   });
 
   async function onSubmit(data: ReportFormValues) {
-    // This is where you would handle the file upload if needed.
-    // For now, we'll pass the data to the server action.
-    try {
-        await saveReport(data);
+    if (!auth.currentUser) {
         toast({
-          title: '✅ 제보가 등록되었습니다',
-          description: '검증 후 지도에 반영됩니다. 감사합니다!',
+            variant: 'destructive',
+            title: '❌ 로그인이 필요합니다',
+            description: '리포트를 제출하려면 먼저 로그인해야 합니다.',
         });
-        router.push('/');
+        return;
+    }
+
+    try {
+        const token = await auth.currentUser.getIdToken();
+        const response = await fetch('/api/report', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify(data),
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+            toast({
+              title: '✅ 제보가 등록되었습니다',
+              description: '검증 후 지도에 반영됩니다. 감사합니다!',
+            });
+            router.push('/');
+        } else {
+            throw new Error(result.error || 'An unknown error occurred.');
+        }
     } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : '제보를 등록하는 중 문제가 발생했습니다. 잠시 후 다시 시도해주세요.';
         toast({
             variant: 'destructive',
             title: '❌ 오류가 발생했습니다',
-            description: '제보를 등록하는 중 문제가 발생했습니다. 잠시 후 다시 시도해주세요.',
+            description: errorMessage,
         });
     }
   }

@@ -14,6 +14,8 @@ import {
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Map, Syringe, User, LogOut, Settings, HelpCircle, List, Edit, MessageSquare } from 'lucide-react';
+import { auth } from '@/lib/firebase';
+import { GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged, User as FirebaseUser } from 'firebase/auth';
 
 const Logo = () => (
     <Link href="/" className="flex items-center gap-2 font-bold text-lg text-primary">
@@ -29,10 +31,28 @@ const navLinks = [
   { href: '/guide', label: '이용 안내', icon: <HelpCircle className="h-4 w-4" /> },
 ];
 
-const UserNav: React.FC<{ isLoggedIn: boolean; onAuthChange: (loggedIn: boolean) => void }> = ({ isLoggedIn, onAuthChange }) => {
-  if (!isLoggedIn) {
+const handleSignIn = async () => {
+    const provider = new GoogleAuthProvider();
+    try {
+        await signInWithPopup(auth, provider);
+    } catch (error) {
+        console.error("Error signing in with Google", error);
+    }
+};
+
+const handleSignOut = async () => {
+    try {
+        await signOut(auth);
+    } catch (error) {
+        console.error("Error signing out", error);
+    }
+};
+
+
+const UserNav: React.FC<{ user: FirebaseUser | null }> = ({ user }) => {
+  if (!user) {
     return (
-      <Button onClick={() => onAuthChange(true)}>로그인</Button>
+      <Button onClick={handleSignIn}>로그인</Button>
     );
   }
 
@@ -41,17 +61,17 @@ const UserNav: React.FC<{ isLoggedIn: boolean; onAuthChange: (loggedIn: boolean)
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" className="relative h-8 w-8 rounded-full">
           <Avatar className="h-8 w-8">
-            <AvatarImage src="https://picsum.photos/seed/user/40/40" alt="@user" />
-            <AvatarFallback>U</AvatarFallback>
+            <AvatarImage src={user.photoURL || undefined} alt={user.displayName || 'User'} />
+            <AvatarFallback>{user.displayName?.charAt(0) || 'U'}</AvatarFallback>
           </Avatar>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-56" align="end" forceMount>
         <DropdownMenuLabel className="font-normal">
           <div className="flex flex-col space-y-1">
-            <p className="text-sm font-medium leading-none">사용자</p>
+            <p className="text-sm font-medium leading-none">{user.displayName}</p>
             <p className="text-xs leading-none text-muted-foreground">
-              user@example.com
+              {user.email}
             </p>
           </div>
         </DropdownMenuLabel>
@@ -65,7 +85,7 @@ const UserNav: React.FC<{ isLoggedIn: boolean; onAuthChange: (loggedIn: boolean)
           <span>설정</span>
         </DropdownMenuItem>
         <DropdownMenuSeparator />
-        <DropdownMenuItem onClick={() => onAuthChange(false)}>
+        <DropdownMenuItem onClick={handleSignOut}>
           <LogOut className="mr-2 h-4 w-4" />
           <span>로그아웃</span>
         </DropdownMenuItem>
@@ -75,20 +95,15 @@ const UserNav: React.FC<{ isLoggedIn: boolean; onAuthChange: (loggedIn: boolean)
 };
 
 export default function Header() {
-    const [isLoggedIn, setIsLoggedIn] = React.useState(false);
+    const [user, setUser] = React.useState<FirebaseUser | null>(null);
 
     React.useEffect(() => {
-        // Check localStorage only on the client side
-        const storedLoginStatus = localStorage.getItem('isLoggedIn');
-        if (storedLoginStatus === 'true') {
-            setIsLoggedIn(true);
-        }
+        const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+            setUser(currentUser);
+        });
+        return () => unsubscribe();
     }, []);
 
-    const handleAuthChange = (loggedIn: boolean) => {
-        setIsLoggedIn(loggedIn);
-        localStorage.setItem('isLoggedIn', String(loggedIn));
-    };
 
     return (
         <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -109,7 +124,7 @@ export default function Header() {
                           정보 제보하기
                         </Button>
                     </Link>
-                    <UserNav isLoggedIn={isLoggedIn} onAuthChange={handleAuthChange} />
+                    <UserNav user={user} />
                 </div>
             </div>
         </header>

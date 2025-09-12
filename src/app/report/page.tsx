@@ -1,3 +1,4 @@
+
 import Header from '@/components/layout/header';
 import Footer from '@/components/layout/footer';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -33,7 +34,7 @@ export default function ReportPage() {
                     <ShieldAlert className="h-4 w-4" />
                     <AlertTitle>로그인 안내</AlertTitle>
                     <AlertDescription>
-                    정식 버전에서는 신뢰도 높은 정보 유지를 위해 로그인이 필요합니다. 현재 데모 버전에서는 로그인 없이 제보할 수 있습니다.
+                    정보의 신뢰도를 높이기 위해 Google 계정으로 로그인해야만 제보를 등록할 수 있습니다.
                     </AlertDescription>
                 </Alert>
                 <ReportForm />
