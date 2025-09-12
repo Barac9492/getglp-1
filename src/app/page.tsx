@@ -14,8 +14,6 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { db } from '@/lib/firebase';
 import { collection, getDocs, orderBy, query, onSnapshot } from 'firebase/firestore';
-import { Button } from '@/components/ui/button';
-import { useToast } from '@/hooks/use-toast';
 
 
 export type Filters = {
@@ -28,7 +26,6 @@ export type Filters = {
 export default function Home() {
   const [activeTab, setActiveTab] = React.useState<'wegovy' | 'mounjaro'>('wegovy');
   const [firestoreReports, setFirestoreReports] = React.useState<Report[]>([]);
-  const { toast } = useToast();
   
   React.useEffect(() => {
     document.title = `${items.find(i => i.id === activeTab)?.displayNameKo} 재고 지도 | GLP 트래커`;
@@ -170,37 +167,6 @@ export default function Home() {
 
   const productFilters = { product: activeTab, ...filters };
 
-  const handleShare = async () => {
-    const shareData = {
-      title: 'GLP 트래커 | 위고비/마운자로 재고 지도',
-      text: '서울, 분당, 동탄 지역 GLP-1 다이어트 주사의 재고 현황과 가격 정보를 실시간으로 확인하세요!',
-      url: window.location.href,
-    };
-    
-    const copyToClipboard = () => {
-        navigator.clipboard.writeText(window.location.href);
-        toast({
-            title: '✅ 링크가 복사되었습니다!',
-            description: '친구들에게 공유하여 더 정확한 지도를 만들어보세요.',
-        });
-    }
-
-    if (navigator.share) {
-      try {
-        await navigator.share(shareData);
-      } catch (error) {
-        // Fallback to clipboard if share API fails, but don't log AbortError
-        if ((error as Error).name !== 'AbortError') {
-          console.error('Error sharing:', error);
-        }
-        copyToClipboard();
-      }
-    } else {
-        copyToClipboard();
-    }
-  };
-
-
   return (
     <div className="flex flex-col h-screen bg-background text-foreground">
       <Header />
@@ -235,13 +201,6 @@ export default function Home() {
                         <p className="text-xs mt-1">더 많이 제보하고 공유할수록 정보가 정확해집니다!</p>
                     </div>
                 </div>
-                <Button 
-                    size="sm" 
-                    className="w-full mt-3 bg-primary-foreground text-primary hover:bg-primary-foreground/90"
-                    onClick={handleShare}
-                >
-                    공유하기
-                </Button>
               </div>
 
               <div className="bg-black/50 text-white text-xs p-2 rounded-md flex items-start gap-2">
