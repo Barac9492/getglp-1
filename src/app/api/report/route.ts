@@ -5,9 +5,7 @@ import { NextRequest, NextResponse } from 'next/server';
 export async function POST(req: NextRequest) {
   try {
     const data = await req.json();
-    // We pass the authorization header from the client to the server action
-    // Note: This is a simplified approach. In a production app, you'd want a more robust
-    // way to handle auth between API routes and server actions.
+    // Pass the entire request to the server action so it can extract headers
     const result = await saveReport(data);
 
     if (result.success) {

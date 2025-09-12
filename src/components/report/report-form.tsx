@@ -27,9 +27,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { clinics, items } from '@/lib/mock-data';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
-import { saveReport } from '@/app/actions/report';
 import { auth } from '@/lib/firebase';
-import { useId } from 'react';
 
 const reportFormSchema = z.object({
   clinicId: z.string({ required_error: '클리닉을 선택해주세요.' }),
@@ -42,26 +40,6 @@ const reportFormSchema = z.object({
 });
 
 export type ReportFormValues = z.infer<typeof reportFormSchema>;
-
-async function callSaveReport(data: ReportFormValues) {
-  const user = auth.currentUser;
-  if (!user) {
-    throw new Error('You must be logged in to submit a report.');
-  }
-  const token = await user.getIdToken();
-
-  const response = await fetch('/api/report', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${token}`,
-    },
-    body: JSON.stringify(data),
-  });
-
-  return response.json();
-}
-
 
 export default function ReportForm() {
     const { toast } = useToast();
@@ -76,17 +54,18 @@ export default function ReportForm() {
   });
 
   async function onSubmit(data: ReportFormValues) {
-    if (!auth.currentUser) {
+    const user = auth.currentUser;
+    if (!user) {
         toast({
             variant: 'destructive',
             title: '❌ 로그인이 필요합니다',
-            description: '리포트를 제출하려면 먼저 로그인해야 합니다.',
+            description: '제보를 등록하려면 먼저 구글 계정으로 로그인해주세요.',
         });
         return;
     }
 
     try {
-        const token = await auth.currentUser.getIdToken();
+        const token = await user.getIdToken();
         const response = await fetch('/api/report', {
             method: 'POST',
             headers: {
@@ -98,12 +77,12 @@ export default function ReportForm() {
 
         const result = await response.json();
 
-        if (result.success) {
+        if (response.ok && result.success) {
             toast({
               title: '✅ 제보가 등록되었습니다',
               description: '검증 후 지도에 반영됩니다. 감사합니다!',
             });
-            router.push('/');
+            router.push('/queue');
         } else {
             throw new Error(result.error || 'An unknown error occurred.');
         }
@@ -269,7 +248,7 @@ export default function ReportForm() {
         />
 
 
-        <Button type="submit" className="w-full" disabled={form.formState.isSubmitting}>
+        <Button type="submit" className="w-full" disabled={!auth.currentUser || form.formState.isSubmitting}>
             {form.formState.isSubmitting ? '제출 중...' : '제출하기'}
         </Button>
       </form>

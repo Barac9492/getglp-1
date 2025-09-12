@@ -95,7 +95,7 @@ const UserNav: React.FC<{ user: FirebaseUser | null }> = ({ user }) => {
 };
 
 export default function Header() {
-    const [user, setUser] = React.useState<FirebaseUser | null>(null);
+    const [user, setUser] = React.useState<FirebaseUser | null>(auth.currentUser);
 
     React.useEffect(() => {
         const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
