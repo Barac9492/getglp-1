@@ -45,7 +45,7 @@ export interface Report {
   priceKRW?: number;
   note?: string;
   reportedBy: string;
-  reportedAt: string;
+  reportedAt: any; // Allow for Firebase Timestamp
   _date: Date;
   sourceType: 'phone' | 'visit' | 'sms' | 'kakao' | 'other';
   verification: 'unverified' | 'community-verified' | 'admin-verified';

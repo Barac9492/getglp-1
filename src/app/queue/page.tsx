@@ -1,8 +1,12 @@
 import Header from '@/components/layout/header';
 import Footer from '@/components/layout/footer';
-import { reports as mockReports, clinics } from '@/lib/mock-data';
+import { clinics } from '@/lib/mock-data';
 import ReportCard from '@/components/queue/report-card';
 import type { Metadata } from 'next';
+import { db } from '@/lib/firebase';
+import { collection, getDocs, orderBy, query } from 'firebase/firestore';
+import type { Report } from '@/lib/types';
+import { unstable_noStore as noStore } from 'next/cache';
 
 export const metadata: Metadata = {
   title: '최신 제보 목록',
@@ -12,9 +16,33 @@ export const metadata: Metadata = {
   },
 };
 
-export default function QueuePage() {
-    const allReports = [
-        ...mockReports,
+async function getReportsFromFirestore(): Promise<Report[]> {
+  noStore();
+  try {
+    const reportsCollection = collection(db, 'reports');
+    const q = query(reportsCollection, orderBy('reportedAt', 'desc'));
+    const reportSnapshot = await getDocs(q);
+    const reports = reportSnapshot.docs.map(doc => {
+      const data = doc.data();
+      return {
+        id: doc.id,
+        ...data,
+        _date: data.reportedAt?.toDate() || new Date(),
+        reportedAt: data.reportedAt?.toDate()?.toISOString() || new Date().toISOString(),
+      } as Report;
+    });
+    return reports;
+  } catch (error) {
+    console.error("Error fetching reports from Firestore: ", error);
+    return []; // Return empty array on error
+  }
+}
+
+
+export default async function QueuePage() {
+    const firestoreReports = await getReportsFromFirestore();
+
+    const adminReports = [
         ...clinics.map(c => ({
             id: `admin-${c.id}-wegovy`,
             clinicId: c.id,
@@ -43,8 +71,9 @@ export default function QueuePage() {
             verification: 'admin-verified' as const,
             votes: 999,
         })).filter(r => r.availability !== 'unknown'),
-    ]
-    const sortedReports = allReports.sort((a,b) => b._date.getTime() - a._date.getTime());
+    ] as Report[];
+
+    const allReports = [...firestoreReports, ...adminReports].sort((a,b) => b._date.getTime() - a._date.getTime());
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -58,7 +87,7 @@ export default function QueuePage() {
             </div>
             
             <div className="space-y-4">
-                {sortedReports.map(report => (
+                {allReports.map(report => (
                     <ReportCard key={report.id} report={report} />
                 ))}
             </div>

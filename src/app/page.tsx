@@ -2,8 +2,8 @@
 'use client';
 
 import * as React from 'react';
-import { clinics as allClinics, items, reports as mockReports } from '@/lib/mock-data';
-import type { Clinic } from '@/lib/types';
+import { clinics as allClinics, items } from '@/lib/mock-data';
+import type { Clinic, Report } from '@/lib/types';
 import FilterPanel from '@/components/map/filter-panel';
 import MapView from '@/components/map/map-view';
 import Header from '@/components/layout/header';
@@ -12,6 +12,9 @@ import Legend from '@/components/map/legend';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { db } from '@/lib/firebase';
+import { collection, getDocs, orderBy, query } from 'firebase/firestore';
+
 
 export type Filters = {
   region: string;
@@ -20,12 +23,43 @@ export type Filters = {
   verificationStatus: string;
 };
 
+async function getReportsFromFirestore(): Promise<Report[]> {
+  // This function is now illustrative, as we fetch on the client in useEffect
+  try {
+    const reportsCollection = collection(db, 'reports');
+    const q = query(reportsCollection, orderBy('reportedAt', 'desc'));
+    const reportSnapshot = await getDocs(q);
+    const reports = reportSnapshot.docs.map(doc => {
+      const data = doc.data();
+      return {
+        id: doc.id,
+        ...data,
+        _date: data.reportedAt?.toDate() || new Date(),
+        reportedAt: data.reportedAt?.toDate()?.toISOString() || new Date().toISOString(),
+      } as Report;
+    });
+    return reports;
+  } catch (error) {
+    console.error("Error fetching reports from Firestore: ", error);
+    return []; // Return empty array on error
+  }
+}
+
 export default function Home() {
   const [activeTab, setActiveTab] = React.useState<'wegovy' | 'mounjaro'>('wegovy');
+  const [firestoreReports, setFirestoreReports] = React.useState<Report[]>([]);
   
   React.useEffect(() => {
     document.title = `${items.find(i => i.id === activeTab)?.displayNameKo} 재고 지도 | GLP 트래커`;
   }, [activeTab]);
+
+  React.useEffect(() => {
+    const fetchReports = async () => {
+      const reports = await getReportsFromFirestore();
+      setFirestoreReports(reports);
+    };
+    fetchReports();
+  }, []);
 
   const reports = React.useMemo(() => {
     const adminReports = allClinics.map(clinic => {
@@ -65,10 +99,10 @@ export default function Home() {
         return [wegovyReport];
       }
       return [wegovyReport, mounjaroReport];
-    }).flat();
+    }).flat() as Report[];
 
-    return [...mockReports, ...adminReports];
-  }, []);
+    return [...firestoreReports, ...adminReports];
+  }, [firestoreReports]);
 
   const availableClinicsForProduct = React.useMemo(() => allClinics.filter(c => c.status[activeTab] === 'available' && c.price[activeTab]), [activeTab]);
 

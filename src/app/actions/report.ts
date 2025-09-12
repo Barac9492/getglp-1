@@ -1,25 +1,31 @@
 'use server';
 
 import { ReportFormValues } from '@/components/report/report-form';
+import { db } from '@/lib/firebase';
+import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import { revalidatePath } from 'next/cache';
 
-// This is a placeholder for your actual database logic.
-// In a real application, you would save this data to a database like Firestore,
-// and new reports would be added to the `reports` collection.
 export async function saveReport(data: ReportFormValues) {
-  console.log('Saving report:', data);
+  console.log('Saving report to Firestore:', data);
 
-  // Here you would typically write to your database.
-  // For example: `await db.collection('reports').add(data);`
-  
-  // We'll simulate a delay to mimic a real network request.
-  await new Promise(resolve => setTimeout(resolve, 1000));
+  try {
+    const reportsCollection = collection(db, 'reports');
+    await addDoc(reportsCollection, {
+      ...data,
+      priceKRW: data.priceKRW ? Number(data.priceKRW) : null,
+      reportedAt: serverTimestamp(),
+      reportedBy: 'user-demo', // Placeholder until auth is added
+      verification: 'unverified',
+      votes: 0,
+    });
 
-  // Since we can't write to the mock data file, we can't show the new report
-  // without a real database. However, once a database is set up, you would
-  // revalidate the paths that show report data to update the UI.
-  revalidatePath('/');
-  revalidatePath('/queue');
+    // Revalidate paths to show the new report
+    revalidatePath('/');
+    revalidatePath('/queue');
 
-  return { success: true };
+    return { success: true };
+  } catch (error) {
+    console.error('Error saving report to Firestore:', error);
+    return { success: false, error: 'Failed to save report.' };
+  }
 }
