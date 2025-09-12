@@ -26,6 +26,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { clinics, items } from '@/lib/mock-data';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
+import { saveReport } from '@/app/actions/report';
 
 const reportFormSchema = z.object({
   clinicId: z.string({ required_error: '클리닉을 선택해주세요.' }),
@@ -37,7 +38,7 @@ const reportFormSchema = z.object({
   evidenceImage: z.any().optional(),
 });
 
-type ReportFormValues = z.infer<typeof reportFormSchema>;
+export type ReportFormValues = z.infer<typeof reportFormSchema>;
 
 export default function ReportForm() {
     const { toast } = useToast();
@@ -51,13 +52,23 @@ export default function ReportForm() {
     }
   });
 
-  function onSubmit(data: ReportFormValues) {
-    console.log(data);
-    toast({
-      title: '✅ 제보가 등록되었습니다',
-      description: '검증 후 지도에 반영됩니다. 감사합니다!',
-    });
-    router.push('/');
+  async function onSubmit(data: ReportFormValues) {
+    // This is where you would handle the file upload if needed.
+    // For now, we'll pass the data to the server action.
+    try {
+        await saveReport(data);
+        toast({
+          title: '✅ 제보가 등록되었습니다',
+          description: '검증 후 지도에 반영됩니다. 감사합니다!',
+        });
+        router.push('/');
+    } catch (error) {
+        toast({
+            variant: 'destructive',
+            title: '❌ 오류가 발생했습니다',
+            description: '제보를 등록하는 중 문제가 발생했습니다. 잠시 후 다시 시도해주세요.',
+        });
+    }
   }
 
   return (
@@ -212,7 +223,9 @@ export default function ReportForm() {
         />
 
 
-        <Button type="submit" className="w-full">제출하기</Button>
+        <Button type="submit" className="w-full" disabled={form.formState.isSubmitting}>
+            {form.formState.isSubmitting ? '제출 중...' : '제출하기'}
+        </Button>
       </form>
     </Form>
   );
