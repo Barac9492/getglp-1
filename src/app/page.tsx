@@ -98,17 +98,8 @@ export default function Home() {
     return [...firestoreReports, ...adminReports];
   }, [firestoreReports]);
 
-  const availableClinicsForProduct = React.useMemo(() => allClinics.filter(c => c.status[activeTab] === 'available' && c.price[activeTab]), [activeTab]);
-
-  const [minPrice, maxPrice] = React.useMemo(() => {
-      if (availableClinicsForProduct.length === 0) {
-        return [100000, 1000000];
-      }
-      const prices = availableClinicsForProduct.map(c => c.price[activeTab]!).filter(p => p !== undefined && p !== null) as number[];
-      const min = Math.min(...prices);
-      const max = Math.max(...prices);
-      return [min, max];
-  }, [availableClinicsForProduct, activeTab]);
+  const minPrice = 200000;
+  const maxPrice = 600000;
 
   const [filters, setFilters] = React.useState<Filters>({
     region: 'all',
@@ -117,13 +108,6 @@ export default function Home() {
     verificationStatus: 'all',
   });
 
-  React.useEffect(() => {
-    setFilters(prev => ({
-      ...prev,
-      priceRange: [minPrice, maxPrice]
-    }));
-  }, [minPrice, maxPrice]);
-  
   const filteredClinics = React.useMemo(() => {
     return allClinics.filter((clinic) => {
       const { region, priceRange, lastUpdated, verificationStatus } = filters;
