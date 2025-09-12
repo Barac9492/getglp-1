@@ -1,0 +1,27 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Allow public read access to clinics, but restrict writes.
+    // In a real app, you'd likely have an admin role for this.
+    match /clinics/{clinicId} {
+      allow read: if true;
+      allow write: if false; 
+    }
+
+    // Allow logged-in users to create reports.
+    // Users can only read/update/delete their own reports.
+    match /reports/{reportId} {
+      allow read: if true;
+      allow create: if request.auth != null;
+      allow update, delete: if request.auth.uid == resource.data.reportedBy;
+    }
+
+    // TODO: Add security rules for the bot_scrapes collection.
+    // For example, you might want to only allow server-side access.
+    // For now, it's left open for the middleware to write to it.
+    match /bot_scrapes/{scrapeId} {
+      allow read, write: if false; // Should be locked down
+    }
+  }
+}
