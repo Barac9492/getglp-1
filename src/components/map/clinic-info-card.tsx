@@ -26,9 +26,9 @@ const getBadgeVariant = (status: 'available' | 'unavailable' | 'unknown'): 'defa
 
 const getStatusInKorean = (status: 'available' | 'unavailable' | 'unknown'): string => {
     switch (status) {
-        case 'available': return '가용';
-        case 'unavailable': return '비가용';
-        default: return '미확인';
+        case 'available': return '재고 있음';
+        case 'unavailable': return '재고 없음';
+        default: return '정보 없음';
     }
 }
 

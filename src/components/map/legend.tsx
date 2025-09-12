@@ -36,20 +36,17 @@ export default function Legend({ filters }: LegendProps) {
         </CardTitle>
       </CardHeader>
       <CardContent className="p-4 pt-0 space-y-2">
-        <LegendItem color={color} label={`${label} 가용`} />
-        <LegendItem color={unavailableColor} label="비가용" />
-        <LegendItem color={unknownColor} label="미확인" />
-        
-        <div className="flex items-center gap-2 pt-2">
+        <div className="flex items-center gap-2">
           <div className="relative">
-            <div className="w-4 h-4 rounded-full bg-primary" />
-            <div className="absolute inset-0 bg-primary/50 rounded-full animate-ping" />
+            <div className="w-4 h-4 rounded-full" style={{ backgroundColor: color }} />
+            <div className="absolute inset-0 rounded-full animate-ping" style={{ backgroundColor: color, opacity: 0.75 }} />
           </div>
-          <span className="text-sm">재고 확인됨</span>
+          <span className="text-sm">{label} 재고 있음</span>
         </div>
+        <LegendItem color={unavailableColor} label="재고 없음" />
+        <LegendItem color={unknownColor} label="정보 없음" />
+        
       </CardContent>
     </Card>
   );
 }
-
-    
