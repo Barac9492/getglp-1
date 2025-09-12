@@ -1,3 +1,4 @@
+
 'use client';
 
 import Link from 'next/link';
@@ -70,7 +71,7 @@ export default function ClinicInfoCard({ clinic, items }: ClinicInfoCardProps) {
 
       </CardContent>
       <CardFooter className="flex-col sm:flex-row gap-2 p-4 pt-0">
-        <a href={`https://map.google.com?q=${encodeURIComponent(clinic.address)}`} target="_blank" rel="noopener noreferrer" className="w-full">
+        <a href={`https://map.google.com?q=${encodeURIComponent(`${clinic.name}, ${clinic.address}`)}`} target="_blank" rel="noopener noreferrer" className="w-full">
           <Button variant="outline" className="w-full">길찾기</Button>
         </a>
         <Link href={`/report?clinicId=${clinic.id}`} passHref>
