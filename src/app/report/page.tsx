@@ -16,15 +16,15 @@ export default function ReportPage() {
               <CardHeader>
                 <CardTitle className="text-2xl font-headline">가용성 정보 제보하기</CardTitle>
                 <CardDescription>
-                  최신 정보를 공유하여 커뮤니티에 기여해주세요. 모든 제보는 검증 과정을 거쳐 지도에 반영됩니다.
+                  최신 정보를 공유하여 커뮤니티에 기여해주세요. 모든 제보는 커뮤니티 검증을 거쳐 지도에 반영됩니다.
                 </CardDescription>
               </CardHeader>
               <CardContent>
                 <Alert className="mb-6">
                     <ShieldAlert className="h-4 w-4" />
-                    <AlertTitle>로그인 필요</AlertTitle>
+                    <AlertTitle>로그인 안내</AlertTitle>
                     <AlertDescription>
-                    정보를 제보하려면 로그인이 필요합니다. 현재는 데모 버전으로 로그인 없이 제보할 수 있습니다.
+                    정식 버전에서는 신뢰도 높은 정보 유지를 위해 로그인이 필요합니다. 현재 데모 버전에서는 로그인 없이 제보할 수 있습니다.
                     </AlertDescription>
                 </Alert>
                 <ReportForm />

@@ -12,7 +12,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Heart, Map, Syringe, FileText, User, LogOut, Settings, HelpCircle, Bot } from 'lucide-react';
+import { Heart, Map, Syringe, User, LogOut, Settings, HelpCircle, Bot, List } from 'lucide-react';
 
 const Logo = () => (
     <Link href="/" className="flex items-center gap-2 font-bold text-lg text-primary">
@@ -23,8 +23,7 @@ const Logo = () => (
 
 const navLinks = [
   { href: '/', label: '지도', icon: <Map className="h-4 w-4" /> },
-  { href: '/report', label: '제보하기', icon: <FileText className="h-4 w-4" /> },
-  { href: '/queue', label: '검증 큐', icon: <Heart className="h-4 w-4" /> },
+  { href: '/queue', label: '제보 목록', icon: <List className="h-4 w-4" /> },
   { href: '/guide', label: '이용 안내', icon: <HelpCircle className="h-4 w-4" /> },
 ];
 
@@ -89,6 +88,9 @@ export default function Header() {
                 </nav>
 
                 <div className="flex flex-1 items-center justify-end space-x-4">
+                     <Link href="/report" passHref>
+                        <Button>정보 제보하기</Button>
+                    </Link>
                     <UserNav isLoggedIn={isLoggedIn} onAuthChange={setIsLoggedIn} />
                 </div>
             </div>

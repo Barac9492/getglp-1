@@ -120,7 +120,7 @@ export default function ReportForm() {
           name="availability"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>가용성</FormLabel>
+              <FormLabel>재고 상태</FormLabel>
               <FormControl>
                 <RadioGroup
                   onValueChange={field.onChange}
@@ -129,11 +129,11 @@ export default function ReportForm() {
                 >
                   <FormItem className="flex items-center space-x-2 space-y-0">
                     <FormControl><RadioGroupItem value="available" /></FormControl>
-                    <FormLabel className="font-normal">가용 (재고 있음)</FormLabel>
+                    <FormLabel className="font-normal">재고 있음</FormLabel>
                   </FormItem>
                   <FormItem className="flex items-center space-x-2 space-y-0">
                     <FormControl><RadioGroupItem value="unavailable" /></FormControl>
-                    <FormLabel className="font-normal">비가용 (재고 없음)</FormLabel>
+                    <FormLabel className="font-normal">재고 없음</FormLabel>
                   </FormItem>
                 </RadioGroup>
               </FormControl>
@@ -147,11 +147,11 @@ export default function ReportForm() {
           name="priceKRW"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>가격 (선택)</FormLabel>
+              <FormLabel>가격 (선택 사항)</FormLabel>
               <FormControl>
                 <Input type="number" placeholder="예: 350000" {...field} />
               </FormControl>
-              <FormDescription>숫자만 입력해주세요 (단위: 원)</FormDescription>
+              <FormDescription>월 처방 기준, 숫자만 입력해주세요 (단위: 원)</FormDescription>
               <FormMessage />
             </FormItem>
           )}
@@ -162,7 +162,7 @@ export default function ReportForm() {
           name="sourceType"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>출처</FormLabel>
+              <FormLabel>정보 출처</FormLabel>
               <Select onValueChange={field.onChange} defaultValue={field.value}>
                 <FormControl>
                   <SelectTrigger><SelectValue placeholder="어떻게 알게 되셨나요?" /></SelectTrigger>
@@ -185,9 +185,9 @@ export default function ReportForm() {
           name="note"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>메모 (선택)</FormLabel>
+              <FormLabel>메모 (선택 사항)</FormLabel>
               <FormControl>
-                <Textarea placeholder="추가 정보를 입력해주세요 (500자 이내)" {...field} />
+                <Textarea placeholder="추가 정보를 입력해주세요 (예: '2주치만 처방 가능')" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -199,12 +199,12 @@ export default function ReportForm() {
             name="evidenceImage"
             render={({ field }) => (
             <FormItem>
-                <FormLabel>증빙 이미지 (선택)</FormLabel>
+                <FormLabel>증빙 자료 (선택 사항)</FormLabel>
                 <FormControl>
                 <Input type="file" accept="image/*" onChange={(e) => field.onChange(e.target.files)} />
                 </FormControl>
                 <FormDescription>
-                가격이나 재고 정보를 포함하는 영수증, 문자 메시지 스크린샷 등을 첨부할 수 있습니다.
+                가격이나 재고 정보가 담긴 영수증, 문자 메시지 스크린샷 등을 첨부하면 정보의 신뢰도가 올라갑니다.
                 </FormDescription>
                 <FormMessage />
             </FormItem>

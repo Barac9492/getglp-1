@@ -44,7 +44,7 @@ export default function QueuePage() {
         <div className="container mx-auto py-8 md:py-12">
           <div className="mx-auto max-w-4xl">
             <div className="mb-8">
-                <h1 className="text-3xl font-bold font-headline">제보 목록 / 검증 큐</h1>
+                <h1 className="text-3xl font-bold font-headline">제보 목록</h1>
                 <p className="text-muted-foreground mt-2">최신 제보를 확인하고 투표하여 정보의 신뢰도를 높여주세요.</p>
             </div>
             
