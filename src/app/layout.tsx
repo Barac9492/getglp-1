@@ -5,7 +5,7 @@ import { Toaster } from "@/components/ui/toaster";
 const siteName = 'GLP 트래커';
 const description = '서울, 분당, 동탄 지역 GLP-1 다이어트 주사(위고비, 마운자로)의 재고 현황과 가격 정보를 실시간으로 확인하세요. 사용자 제보 기반 가용성 지도.';
 // TODO: Replace this with your actual domain once you have it connected.
-const url = 'https://glp-tracker.firebaseapp.com'; 
+const url = 'https://your-app-url.com'; 
 
 export const metadata: Metadata = {
   title: {
