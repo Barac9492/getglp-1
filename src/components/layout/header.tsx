@@ -12,7 +12,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Heart, Map, Syringe, User, LogOut, Settings, HelpCircle, Bot, List } from 'lucide-react';
+import { Map, Syringe, User, LogOut, Settings, HelpCircle, List, Edit } from 'lucide-react';
 
 const Logo = () => (
     <Link href="/" className="flex items-center gap-2 font-bold text-lg text-primary">
@@ -89,7 +89,10 @@ export default function Header() {
 
                 <div className="flex flex-1 items-center justify-end space-x-4">
                      <Link href="/report" passHref>
-                        <Button>정보 제보하기</Button>
+                        <Button>
+                          <Edit className="mr-2 h-4 w-4" />
+                          정보 제보하기
+                        </Button>
                     </Link>
                     <UserNav isLoggedIn={isLoggedIn} onAuthChange={setIsLoggedIn} />
                 </div>
