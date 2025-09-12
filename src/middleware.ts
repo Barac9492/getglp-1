@@ -1,9 +1,6 @@
-'use server';
 
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
-import { getApps, initializeApp, getApp } from 'firebase-admin/app';
-import { getFirestore } from 'firebase-admin/firestore';
 
 // Add known bot user agents to this list
 const BOT_USER_AGENTS = [
@@ -42,11 +39,6 @@ const BOT_USER_AGENTS = [
     'adidxbot'
 ];
 
-// Initialize Firebase Admin SDK if not already initialized
-if (getApps().length === 0) {
-  initializeApp();
-}
-const db = getFirestore();
 
 export async function middleware(request: NextRequest) {
   const userAgent = request.headers.get('user-agent')?.toLowerCase() || '';
@@ -55,22 +47,11 @@ export async function middleware(request: NextRequest) {
   const isBot = BOT_USER_AGENTS.some(bot => userAgent.includes(bot));
 
   if (isBot) {
-    try {
-      // Asynchronously log bot visit to Firestore without blocking the request
-      const logPromise = db.collection('bot_scrapes').add({
-        url: request.nextUrl.pathname,
-        userAgent: userAgent,
-        timestamp: new Date(),
-        ip: request.ip,
-        headers: JSON.stringify(Object.fromEntries(request.headers.entries())),
-      });
-      // We don't await this promise to avoid delaying the response.
-      // This is a "fire-and-forget" operation.
-      logPromise.catch(console.error);
-
-    } catch (error) {
-      console.error('Error logging bot scrape to Firestore:', error);
-    }
+    // NOTE: Logging bot visits to a database from middleware requires an Edge-compatible
+    // database client or sending a request to a serverless function.
+    // The previous implementation using firebase-admin was causing a runtime error.
+    // For now, we are only detecting the bot without logging.
+    console.log(`Bot detected: ${userAgent}, URL: ${request.nextUrl.pathname}`);
   }
 
   // Continue with the request
