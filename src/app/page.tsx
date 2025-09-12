@@ -23,13 +23,6 @@ export type Filters = {
 export default function Home() {
   const [activeTab, setActiveTab] = React.useState<'wegovy' | 'mounjaro'>('wegovy');
   
-  const [filters, setFilters] = React.useState<Filters>({
-    region: 'all',
-    priceRange: [200000, 600000],
-    lastUpdated: 'all',
-    verificationStatus: 'all',
-  });
-  
   const reports = React.useMemo(() => {
     const adminReports = allClinics.map(clinic => {
       const wegovyReport = {
@@ -73,18 +66,45 @@ export default function Home() {
     return [...mockReports, ...adminReports];
   }, []);
 
+  const availableClinicsForProduct = React.useMemo(() => allClinics.filter(c => c.status[activeTab] === 'available' && c.price[activeTab]), [activeTab]);
+
+  const [minPrice, maxPrice] = React.useMemo(() => {
+      if (availableClinicsForProduct.length === 0) {
+        return [100000, 1000000];
+      }
+      const prices = availableClinicsForProduct.map(c => c.price[activeTab]!).filter(p => p !== undefined && p !== null) as number[];
+      const min = Math.min(...prices);
+      const max = Math.max(...prices);
+      return [min, max];
+  }, [availableClinicsForProduct, activeTab]);
+
+  const [filters, setFilters] = React.useState<Filters>({
+    region: 'all',
+    priceRange: [minPrice, maxPrice],
+    lastUpdated: 'all',
+    verificationStatus: 'all',
+  });
+
+  React.useEffect(() => {
+    setFilters(prev => ({
+      ...prev,
+      priceRange: [minPrice, maxPrice]
+    }));
+  }, [minPrice, maxPrice]);
+  
   const filteredClinics = React.useMemo(() => {
     return allClinics.filter((clinic) => {
       const { region, priceRange, lastUpdated, verificationStatus } = filters;
+
+      // When filtering, we only want to show clinics that have the item available
+      if (clinic.status[activeTab] !== 'available') return false;
+
       if (region !== 'all' && clinic.district !== region) {
         return false;
       }
       
       const price = clinic.price[activeTab];
       const hasPrice = price !== undefined && price !== null;
-
-      // When filtering, we only want to show clinics that have the item available
-      if (clinic.status[activeTab] !== 'available') return false;
       
       // Price filter should only apply if the clinic has a price for the active product
       if (hasPrice && (price < priceRange[0] || price > priceRange[1])) {
@@ -144,7 +164,7 @@ export default function Home() {
                 </div>
               </AccordionTrigger>
               <AccordionContent className="border-t">
-                  <FilterPanel filters={filters} setFilters={setFilters} product={activeTab} />
+                  <FilterPanel filters={filters} setFilters={setFilters} product={activeTab} minPrice={minPrice} maxPrice={maxPrice} />
               </AccordionContent>
             </AccordionItem>
           </Accordion>

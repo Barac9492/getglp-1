@@ -19,6 +19,8 @@ interface FilterPanelProps {
   filters: Omit<Filters, 'product'>;
   setFilters: React.Dispatch<React.SetStateAction<Omit<Filters, 'product'>>>;
   product: 'wegovy' | 'mounjaro';
+  minPrice: number;
+  maxPrice: number;
 }
 
 const regions = [
@@ -62,7 +64,7 @@ const verificationOptions = [
     { value: 'admin-verified', label: '관리자 검증' },
 ];
 
-export default function FilterPanel({ filters, setFilters, product }: FilterPanelProps) {
+export default function FilterPanel({ filters, setFilters, product, minPrice, maxPrice }: FilterPanelProps) {
   const handleFilterChange = <K extends keyof Filters>(key: K, value: Filters[K]) => {
     setFilters((prev) => ({ ...prev, [key]: value }));
   };
@@ -76,7 +78,7 @@ export default function FilterPanel({ filters, setFilters, product }: FilterPane
             <AccordionContent className="px-4">
               <Select
                 value={filters.region}
-                onValuecha  ge={(value) => handleFilterChange('region', value)}
+                onValueChange={(value) => handleFilterChange('region', value)}
               >
                 <SelectTrigger>
                   <SelectValue placeholder="지역 선택" />
@@ -95,8 +97,8 @@ export default function FilterPanel({ filters, setFilters, product }: FilterPane
             <AccordionContent className="px-4">
               <div className="space-y-4 pt-2">
                 <Slider
-                  min={100000}
-                  max={1000000}
+                  min={minPrice}
+                  max={maxPrice}
                   step={10000}
                   value={filters.priceRange}
                   onValueChange={(value) => handleFilterChange('priceRange', value as [number, number])}
