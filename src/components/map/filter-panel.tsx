@@ -25,7 +25,7 @@ const regions = [
   { value: '서울 서초구', label: '서울 서초구' },
   { value: '서울 마포구', label: '서울 마포구' },
   { value: '성남시 분당구', label: '성남시 분당구' },
-  { value: '화성시 동탄', label: '화성시 동탄' },
+  { value: '동탄', label: '동탄' },
 ];
 
 const updateOptions = [

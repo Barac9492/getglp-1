@@ -43,7 +43,7 @@ export const clinics: Clinic[] = [
     location: { latitude: 37.203, longitude: 127.094 },
     mapPosition: { top: '88%', left: '58%' },
     geohash: 'wydh2',
-    district: '화성시 동탄',
+    district: '동탄',
     phone: '031-111-2222',
     status: { wegovy: 'unknown', mounjaro: 'available' },
     price: { mounjaro: 420000 },
