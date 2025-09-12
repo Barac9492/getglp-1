@@ -1,3 +1,4 @@
+
 'use client';
 
 import * as React from 'react';
@@ -9,19 +10,21 @@ import Header from '@/components/layout/header';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { SlidersHorizontal } from 'lucide-react';
 import Legend from '@/components/map/legend';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+
 
 export type Filters = {
   region: string;
-  product: 'all' | 'wegovy' | 'mounjaro';
   priceRange: [number, number];
   lastUpdated: string;
   verificationStatus: string;
 };
 
 export default function Home() {
+  const [activeTab, setActiveTab] = React.useState<'wegovy' | 'mounjaro'>('wegovy');
+  
   const [filters, setFilters] = React.useState<Filters>({
     region: 'all',
-    product: 'all',
     priceRange: [200000, 600000],
     lastUpdated: 'all',
     verificationStatus: 'all',
@@ -72,16 +75,15 @@ export default function Home() {
 
   const filteredClinics = React.useMemo(() => {
     return allClinics.filter((clinic) => {
-      const { region, product, priceRange, lastUpdated, verificationStatus } = filters;
+      const { region, priceRange, lastUpdated, verificationStatus } = filters;
       if (region !== 'all' && clinic.district !== region) {
         return false;
       }
-      if (product !== 'all') {
-        const price = clinic.price[product];
-        if(clinic.status[product] !== 'available') return false;
-        if (price && (price < priceRange[0] || price > priceRange[1])) {
-          return false;
-        }
+      
+      const price = clinic.price[activeTab];
+      if (clinic.status[activeTab] !== 'available') return false;
+      if (price && (price < priceRange[0] || price > priceRange[1])) {
+        return false;
       }
 
       if (lastUpdated !== 'all') {
@@ -104,14 +106,30 @@ export default function Home() {
 
       return true;
     });
-  }, [filters, reports]);
+  }, [filters, reports, activeTab]);
+
+  const productFilters = { product: activeTab, ...filters };
 
   return (
     <div className="flex flex-col h-screen bg-background text-foreground">
       <Header />
       <main className="flex-1 relative">
-        <MapView clinics={filteredClinics} filters={filters} />
-        <div className="absolute top-4 left-4 right-4 md:left-auto md:w-[24rem] lg:w-[26rem] z-10">
+        <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as 'wegovy' | 'mounjaro')} className="w-full h-full">
+            <div className="absolute top-4 left-1/2 -translate-x-1/2 z-20">
+                <TabsList>
+                    <TabsTrigger value="wegovy">위고비</TabsTrigger>
+                    <TabsTrigger value="mounjaro">마운자로</TabsTrigger>
+                </TabsList>
+            </div>
+          <TabsContent value="wegovy" className="w-full h-full m-0">
+             <MapView clinics={filteredClinics} filters={productFilters} />
+          </TabsContent>
+          <TabsContent value="mounjaro" className="w-full h-full m-0">
+             <MapView clinics={filteredClinics} filters={productFilters} />
+          </TabsContent>
+        </Tabs>
+
+        <div className="absolute top-20 md:top-4 left-4 right-4 md:left-auto md:w-[24rem] lg:w-[26rem] z-10">
            <Accordion type="single" collapsible defaultValue="filters" className="bg-background/90 backdrop-blur-sm rounded-lg shadow-lg">
             <AccordionItem value="filters" className="border-none">
               <AccordionTrigger className="p-4 hover:no-underline">
@@ -121,15 +139,18 @@ export default function Home() {
                 </div>
               </AccordionTrigger>
               <AccordionContent className="border-t">
-                  <FilterPanel filters={filters} setFilters={setFilters} />
+                  <FilterPanel filters={filters} setFilters={setFilters} product={activeTab} />
               </AccordionContent>
             </AccordionItem>
           </Accordion>
         </div>
         <div className="absolute bottom-4 right-4 z-10">
-          <Legend filters={filters} />
+          <Legend filters={productFilters} />
         </div>
       </main>
     </div>
   );
 }
+
+
+    

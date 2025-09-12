@@ -1,12 +1,13 @@
+
 'use client';
 
 import { items } from '@/lib/mock-data';
-import type { Filters } from '@/app/page';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Map } from 'lucide-react';
+import { MapViewFilters } from './map-view';
 
 interface LegendProps {
-  filters: Filters;
+  filters: MapViewFilters;
 }
 
 const LegendItem = ({ color, label }: { color: string; label: string }) => (
@@ -19,9 +20,10 @@ const LegendItem = ({ color, label }: { color: string; label: string }) => (
 export default function Legend({ filters }: LegendProps) {
   const { product } = filters;
 
-  const wegovyColor = items.find(i => i.id === 'wegovy')?.color || '#16a34a';
-  const mounjaroColor = items.find(i => i.id === 'mounjaro')?.color || '#16a34a';
-  const bothColor = '#8E44AD';
+  const productInfo = items.find(i => i.id === product);
+  const color = productInfo?.color || '#16a34a';
+  const label = productInfo?.displayNameKo || '제품';
+  
   const unavailableColor = '#dc2626';
   const unknownColor = '#6b7280';
 
@@ -34,16 +36,7 @@ export default function Legend({ filters }: LegendProps) {
         </CardTitle>
       </CardHeader>
       <CardContent className="p-4 pt-0 space-y-2">
-        {product === 'all' && (
-          <>
-            <LegendItem color={wegovyColor} label="위고비 가용" />
-            <LegendItem color={mounjaroColor} label="마운자로 가용" />
-            <LegendItem color={bothColor} label="둘 다 가용" />
-          </>
-        )}
-        {product === 'wegovy' && <LegendItem color={wegovyColor} label="위고비 가용" />}
-        {product === 'mounjaro' && <LegendItem color={mounjaroColor} label="마운자로 가용" />}
-        
+        <LegendItem color={color} label={`${label} 가용`} />
         <LegendItem color={unavailableColor} label="비가용" />
         <LegendItem color={unknownColor} label="미확인" />
         
@@ -58,3 +51,5 @@ export default function Legend({ filters }: LegendProps) {
     </Card>
   );
 }
+
+    

@@ -1,3 +1,4 @@
+
 'use client';
 
 import * as React from 'react';
@@ -15,18 +16,38 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Filters } from '@/app/page';
 
 interface FilterPanelProps {
-  filters: Filters;
-  setFilters: React.Dispatch<React.SetStateAction<Filters>>;
+  filters: Omit<Filters, 'product'>;
+  setFilters: React.Dispatch<React.SetStateAction<Omit<Filters, 'product'>>>;
+  product: 'wegovy' | 'mounjaro';
 }
 
 const regions = [
-  { value: 'all', label: '서울 전체' },
+  { value: 'all', label: '전체' },
   { value: '서울 강남구', label: '서울 강남구' },
   { value: '서울 서초구', label: '서울 서초구' },
+  { value: '서울 송파구', label: '서울 송파구' },
   { value: '서울 마포구', label: '서울 마포구' },
+  { value: '서울 영등포구', label: '서울 영등포구' },
+  { value: '서울 종로구', label: '서울 종로구' },
+  { value: '서울 중구', label: '서울 중구' },
+  { value: '서울 용산구', label: '서울 용산구' },
+  { value: '서울 성동구', label: '서울 성동구' },
+  { value: '서울 광진구', label: '서울 광진구' },
+  { value: '서울 동대문구', label: '서울 동대문구' },
+  { value: '서울 성북구', label: '서울 성북구' },
+  { value: '서울 강북구', label: '서울 강북구' },
+  { value: '서울 노원구', label: '서울 노원구' },
+  { value: '서울 강동구', label: '서울 강동구' },
+  { value: '서울 관악구', label: '서울 관악구' },
+  { value: '서울 구로구', label: '서울 구로구' },
+  { value: '서울 강서구', label: '서울 강서구' },
+  { value: '서울 양천구', label: '서울 양천구' },
+  { value: '서울 은평구', label: '서울 은평구' },
+  { value: '서울 동작구', label: '서울 동작구' },
   { value: '성남시 분당구', label: '성남시 분당구' },
   { value: '동탄', label: '동탄' },
 ];
+
 
 const updateOptions = [
     { value: 'all', label: '전체' },
@@ -41,7 +62,7 @@ const verificationOptions = [
     { value: 'admin-verified', label: '관리자 검증' },
 ];
 
-export default function FilterPanel({ filters, setFilters }: FilterPanelProps) {
+export default function FilterPanel({ filters, setFilters, product }: FilterPanelProps) {
   const handleFilterChange = <K extends keyof Filters>(key: K, value: Filters[K]) => {
     setFilters((prev) => ({ ...prev, [key]: value }));
   };
@@ -49,13 +70,13 @@ export default function FilterPanel({ filters, setFilters }: FilterPanelProps) {
   return (
     <Card className="border-0 shadow-none bg-transparent">
       <CardContent className="p-0">
-        <Accordion type="multiple" defaultValue={['region', 'product']} className="w-full">
+        <Accordion type="multiple" defaultValue={['region', 'price']} className="w-full">
           <AccordionItem value="region" className="border-b-0">
             <AccordionTrigger className="px-4 py-3">지역</AccordionTrigger>
             <AccordionContent className="px-4">
               <Select
                 value={filters.region}
-                onValueChange={(value) => handleFilterChange('region', value)}
+                onValuecha  ge={(value) => handleFilterChange('region', value)}
               >
                 <SelectTrigger>
                   <SelectValue placeholder="지역 선택" />
@@ -69,30 +90,6 @@ export default function FilterPanel({ filters, setFilters }: FilterPanelProps) {
             </AccordionContent>
           </AccordionItem>
 
-          <AccordionItem value="product" className="border-b-0">
-            <AccordionTrigger className="px-4 py-3">제품</AccordionTrigger>
-            <AccordionContent className="px-4">
-              <RadioGroup
-                value={filters.product}
-                onValueChange={(value: 'all' | 'wegovy' | 'mounjaro') => handleFilterChange('product', value)}
-                className="gap-2"
-              >
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="all" id="r-all" />
-                  <Label htmlFor="r-all">둘 다</Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="wegovy" id="r-wegovy" />
-                  <Label htmlFor="r-wegovy">위고비</Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="mounjaro" id="r-mounjaro" />
-                  <Label htmlFor="r-mounjaro">마운자로</Label>
-                </div>
-              </RadioGroup>
-            </AccordionContent>
-          </AccordionItem>
-
           <AccordionItem value="price" className="border-b-0">
             <AccordionTrigger className="px-4 py-3">가격 범위 (원)</AccordionTrigger>
             <AccordionContent className="px-4">
@@ -103,13 +100,11 @@ export default function FilterPanel({ filters, setFilters }: FilterPanelProps) {
                   step={10000}
                   value={filters.priceRange}
                   onValueChange={(value) => handleFilterChange('priceRange', value as [number, number])}
-                  disabled={filters.product === 'all'}
                 />
                 <div className="flex justify-between text-sm text-muted-foreground">
                   <span>{filters.priceRange[0].toLocaleString()}원</span>
                   <span>{filters.priceRange[1].toLocaleString()}원</span>
                 </div>
-                {filters.product === 'all' && <p className="text-xs text-muted-foreground">가격 필터는 특정 제품을 선택했을 때 활성화됩니다.</p>}
               </div>
             </AccordionContent>
           </AccordionItem>
@@ -154,3 +149,5 @@ export default function FilterPanel({ filters, setFilters }: FilterPanelProps) {
     </Card>
   );
 }
+
+    
