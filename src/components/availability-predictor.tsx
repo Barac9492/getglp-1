@@ -1,45 +1,74 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { predictAvailability, PredictAvailabilityOutput } from '@/ai/flows/availability-prediction';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Card, CardContent } from '@/components/ui/card';
 import { Clinic, ItemId, Report } from '@/lib/types';
 import { Loader2, Wand2 } from 'lucide-react';
-import { items, reports as allReports, clinics as allClinics } from '@/lib/mock-data';
-import { differenceInDays, parseISO } from 'date-fns';
+import { items, clinics as allClinics } from '@/lib/mock-data';
+import { differenceInDays } from 'date-fns';
+import { db } from '@/lib/firebase';
+import { collection, query, where, orderBy, onSnapshot } from 'firebase/firestore';
 
 export function AvailabilityPredictor({ clinic, item }: { clinic: Clinic, item: ItemId }) {
   const [prediction, setPrediction] = useState<PredictAvailabilityOutput | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [firestoreReports, setFirestoreReports] = useState<Report[]>([]);
 
   const itemName = items.find(i => i.id === item)?.displayNameKo || item;
+
+  useEffect(() => {
+    const reportsCollection = collection(db, 'reports');
+    const q = query(
+      reportsCollection,
+      where('clinicId', '==', clinic.id),
+      where('item', '==', item),
+      orderBy('reportedAt', 'desc')
+    );
+
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const reports = snapshot.docs.map(doc => {
+        const data = doc.data();
+        return {
+          id: doc.id,
+          ...data,
+          _date: data.reportedAt?.toDate() || new Date(),
+          reportedAt: data.reportedAt?.toDate()?.toISOString() || new Date().toISOString(),
+        } as Report;
+      });
+      setFirestoreReports(reports);
+    });
+
+    return () => unsubscribe();
+  }, [clinic.id, item]);
 
   const handlePredict = async () => {
     setLoading(true);
     setError(null);
     setPrediction(null);
     try {
-      const allClinicReports = [
-          ...allReports.filter(r => r.clinicId === clinic.id && r.item === item),
-          ...allClinics.filter(c => c.id === clinic.id).map(c => ({
-              id: `admin-${c.id}-${item}`,
-              clinicId: c.id,
-              clinicName: c.name,
-              item: item,
-              availability: c.status[item],
-              priceKRW: c.price[item],
-              reportedAt: c.lastUpdated,
-              _date: new Date(c.lastUpdated),
-              reportedBy: 'admin',
-              sourceType: 'other' as const,
-              verification: 'admin-verified' as const,
-              votes: 999,
-          })).filter(r => r.availability !== 'unknown')
-      ];
+      // Admin-provided data for the specific clinic and item
+      const adminReport: Report[] = allClinics
+        .filter(c => c.id === clinic.id && c.status[item] !== 'unknown')
+        .map(c => ({
+          id: `admin-${c.id}-${item}`,
+          clinicId: c.id,
+          clinicName: c.name,
+          item: item,
+          availability: c.status[item],
+          priceKRW: c.price[item],
+          reportedAt: c.lastUpdated,
+          _date: new Date(c.lastUpdated),
+          reportedBy: 'admin',
+          sourceType: 'other' as const,
+          verification: 'admin-verified' as const,
+          votes: 999,
+        }));
 
+      const allClinicReports = [...firestoreReports, ...adminReport];
       const sortedReports = allClinicReports.sort((a, b) => b._date.getTime() - a._date.getTime());
 
       const historicalData = sortedReports.map(r => `${r.reportedAt.split('T')[0]}: ${r.availability}`).join(', ');

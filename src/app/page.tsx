@@ -13,7 +13,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { db } from '@/lib/firebase';
-import { collection, getDocs, orderBy, query } from 'firebase/firestore';
+import { collection, getDocs, orderBy, query, onSnapshot } from 'firebase/firestore';
 
 
 export type Filters = {
@@ -22,28 +22,6 @@ export type Filters = {
   lastUpdated: string;
   verificationStatus: string;
 };
-
-async function getReportsFromFirestore(): Promise<Report[]> {
-  // This function is now illustrative, as we fetch on the client in useEffect
-  try {
-    const reportsCollection = collection(db, 'reports');
-    const q = query(reportsCollection, orderBy('reportedAt', 'desc'));
-    const reportSnapshot = await getDocs(q);
-    const reports = reportSnapshot.docs.map(doc => {
-      const data = doc.data();
-      return {
-        id: doc.id,
-        ...data,
-        _date: data.reportedAt?.toDate() || new Date(),
-        reportedAt: data.reportedAt?.toDate()?.toISOString() || new Date().toISOString(),
-      } as Report;
-    });
-    return reports;
-  } catch (error) {
-    console.error("Error fetching reports from Firestore: ", error);
-    return []; // Return empty array on error
-  }
-}
 
 export default function Home() {
   const [activeTab, setActiveTab] = React.useState<'wegovy' | 'mounjaro'>('wegovy');
@@ -54,16 +32,31 @@ export default function Home() {
   }, [activeTab]);
 
   React.useEffect(() => {
-    const fetchReports = async () => {
-      const reports = await getReportsFromFirestore();
+    const reportsCollection = collection(db, 'reports');
+    const q = query(reportsCollection, orderBy('reportedAt', 'desc'));
+    
+    // Use onSnapshot for real-time updates
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const reports = snapshot.docs.map(doc => {
+        const data = doc.data();
+        return {
+          id: doc.id,
+          ...data,
+          _date: data.reportedAt?.toDate() || new Date(),
+          reportedAt: data.reportedAt?.toDate()?.toISOString() || new Date().toISOString(),
+        } as Report;
+      });
       setFirestoreReports(reports);
-    };
-    fetchReports();
+    });
+
+    // Clean up the listener when the component unmounts
+    return () => unsubscribe();
   }, []);
 
   const reports = React.useMemo(() => {
     const adminReports = allClinics.map(clinic => {
       const wegovyReport = {
+        id: `admin-${clinic.id}-wegovy`,
         clinicId: clinic.id,
         clinicName: clinic.name,
         item: 'wegovy' as const,
@@ -77,6 +70,7 @@ export default function Home() {
         votes: 999,
       }
       const mounjaroReport = {
+          id: `admin-${clinic.id}-mounjaro`,
           clinicId: clinic.id,
           clinicName: clinic.name,
           item: 'mounjaro' as const,
