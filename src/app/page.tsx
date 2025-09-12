@@ -189,11 +189,11 @@ export default function Home() {
       try {
         await navigator.share(shareData);
       } catch (error) {
-        // This error is thrown if the user cancels the share dialog.
-        // We can safely ignore it, but we'll fall back to clipboard just in case.
+        // Fallback to clipboard if share API fails
+        copyToClipboard();
+        // We only want to log errors that are not AbortError
         if ((error as Error).name !== 'AbortError') {
-            console.error('Error sharing:', error);
-            copyToClipboard();
+          console.error('Error sharing:', error);
         }
       }
     } else {
