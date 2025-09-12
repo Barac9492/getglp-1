@@ -8,6 +8,7 @@ import MapView from '@/components/map/map-view';
 import Header from '@/components/layout/header';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { SlidersHorizontal } from 'lucide-react';
+import Legend from '@/components/map/legend';
 
 export type Filters = {
   region: string;
@@ -124,6 +125,9 @@ export default function Home() {
               </AccordionContent>
             </AccordionItem>
           </Accordion>
+        </div>
+        <div className="absolute bottom-4 right-4 z-10">
+          <Legend filters={filters} />
         </div>
       </main>
     </div>
