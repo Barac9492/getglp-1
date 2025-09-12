@@ -91,10 +91,11 @@ export default function MapView({ clinics, filters }: { clinics: Clinic[]; filte
         >
           {clinics.map((clinic) => {
             const { color, borderColor, pulse } = getMarkerInfo(clinic);
+            const position = {lat: clinic.location.latitude, lng: clinic.location.longitude};
             return (
               <AdvancedMarker
                 key={clinic.id}
-                position={clinic.location}
+                position={position}
                 onClick={() => setSelectedClinicId(clinic.id)}
               >
                 <div className="relative">
@@ -106,7 +107,7 @@ export default function MapView({ clinics, filters }: { clinics: Clinic[]; filte
           })}
           {selectedClinic && (
              <InfoWindow
-                position={selectedClinic.location}
+                position={{lat: selectedClinic.location.latitude, lng: selectedClinic.location.longitude}}
                 onCloseClick={() => setSelectedClinicId(null)}
               >
                 <div className="w-80">
