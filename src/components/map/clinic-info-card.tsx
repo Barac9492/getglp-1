@@ -36,6 +36,8 @@ const getStatusInKorean = (status: 'available' | 'unavailable' | 'unknown'): str
 export default function ClinicInfoCard({ clinic, items }: ClinicInfoCardProps) {
   const lastUpdatedDate = new Date(clinic.lastUpdated).toLocaleDateString('ko-KR');
 
+  const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(clinic.name)}&query_place_id=${clinic.geohash}`;
+
   return (
     <Card className="border-0 shadow-none">
       <CardHeader className="p-4 pb-2">
@@ -71,7 +73,7 @@ export default function ClinicInfoCard({ clinic, items }: ClinicInfoCardProps) {
 
       </CardContent>
       <CardFooter className="flex-col sm:flex-row gap-2 p-4 pt-0">
-        <a href={`https://map.google.com?q=${encodeURIComponent(`${clinic.name}, ${clinic.address}`)}`} target="_blank" rel="noopener noreferrer" className="w-full">
+        <a href={mapsUrl} target="_blank" rel="noopener noreferrer" className="w-full">
           <Button variant="outline" className="w-full">길찾기</Button>
         </a>
         <Link href={`/report?clinicId=${clinic.id}`} passHref>
