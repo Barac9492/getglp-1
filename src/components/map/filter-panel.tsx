@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import {
   Accordion,
   AccordionContent,
@@ -11,7 +11,6 @@ import {
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Slider } from '@/components/ui/slider';
-import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Filters } from '@/app/page';
 
@@ -48,15 +47,12 @@ export default function FilterPanel({ filters, setFilters }: FilterPanelProps) {
   };
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="font-headline">필터</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <Accordion type="multiple" defaultValue={['region', 'product', 'price']} className="w-full">
-          <AccordionItem value="region">
-            <AccordionTrigger>지역</AccordionTrigger>
-            <AccordionContent>
+    <Card className="border-0 shadow-none bg-transparent">
+      <CardContent className="p-0">
+        <Accordion type="multiple" defaultValue={['region', 'product']} className="w-full">
+          <AccordionItem value="region" className="border-b-0">
+            <AccordionTrigger className="px-4 py-3">지역</AccordionTrigger>
+            <AccordionContent className="px-4">
               <Select
                 value={filters.region}
                 onValueChange={(value) => handleFilterChange('region', value)}
@@ -73,9 +69,9 @@ export default function FilterPanel({ filters, setFilters }: FilterPanelProps) {
             </AccordionContent>
           </AccordionItem>
 
-          <AccordionItem value="product">
-            <AccordionTrigger>제품</AccordionTrigger>
-            <AccordionContent>
+          <AccordionItem value="product" className="border-b-0">
+            <AccordionTrigger className="px-4 py-3">제품</AccordionTrigger>
+            <AccordionContent className="px-4">
               <RadioGroup
                 value={filters.product}
                 onValueChange={(value: 'all' | 'wegovy' | 'mounjaro') => handleFilterChange('product', value)}
@@ -97,28 +93,30 @@ export default function FilterPanel({ filters, setFilters }: FilterPanelProps) {
             </AccordionContent>
           </AccordionItem>
 
-          <AccordionItem value="price">
-            <AccordionTrigger>가격 범위 (원)</AccordionTrigger>
-            <AccordionContent>
-              <div className="space-y-4">
+          <AccordionItem value="price" className="border-b-0">
+            <AccordionTrigger className="px-4 py-3">가격 범위 (원)</AccordionTrigger>
+            <AccordionContent className="px-4">
+              <div className="space-y-4 pt-2">
                 <Slider
                   min={100000}
                   max={1000000}
                   step={10000}
                   value={filters.priceRange}
                   onValueChange={(value) => handleFilterChange('priceRange', value as [number, number])}
+                  disabled={filters.product === 'all'}
                 />
-                <div className="flex justify-between text-sm">
+                <div className="flex justify-between text-sm text-muted-foreground">
                   <span>{filters.priceRange[0].toLocaleString()}원</span>
                   <span>{filters.priceRange[1].toLocaleString()}원</span>
                 </div>
+                {filters.product === 'all' && <p className="text-xs text-muted-foreground">가격 필터는 특정 제품을 선택했을 때 활성화됩니다.</p>}
               </div>
             </AccordionContent>
           </AccordionItem>
           
-          <AccordionItem value="updated">
-            <AccordionTrigger>업데이트</AccordionTrigger>
-            <AccordionContent>
+          <AccordionItem value="updated" className="border-b-0">
+            <AccordionTrigger className="px-4 py-3">업데이트</AccordionTrigger>
+            <AccordionContent className="px-4">
                 <RadioGroup
                     value={filters.lastUpdated}
                     onValueChange={(value) => handleFilterChange('lastUpdated', value)}
@@ -134,9 +132,9 @@ export default function FilterPanel({ filters, setFilters }: FilterPanelProps) {
             </AccordionContent>
           </AccordionItem>
 
-          <AccordionItem value="verification">
-            <AccordionTrigger>검증 상태</AccordionTrigger>
-            <AccordionContent>
+          <AccordionItem value="verification" className="border-b-0">
+            <AccordionTrigger className="px-4 py-3">검증 상태</AccordionTrigger>
+            <AccordionContent className="px-4">
                  <RadioGroup
                     value={filters.verificationStatus}
                     onValueChange={(value) => handleFilterChange('verificationStatus', value)}
