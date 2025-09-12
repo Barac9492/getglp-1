@@ -14,6 +14,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { db } from '@/lib/firebase';
 import { collection, getDocs, orderBy, query, onSnapshot } from 'firebase/firestore';
+import { Button } from '@/components/ui/button';
+import { useToast } from '@/hooks/use-toast';
 
 
 export type Filters = {
@@ -26,6 +28,7 @@ export type Filters = {
 export default function Home() {
   const [activeTab, setActiveTab] = React.useState<'wegovy' | 'mounjaro'>('wegovy');
   const [firestoreReports, setFirestoreReports] = React.useState<Report[]>([]);
+  const { toast } = useToast();
   
   React.useEffect(() => {
     document.title = `${items.find(i => i.id === activeTab)?.displayNameKo} 재고 지도 | GLP 트래커`;
@@ -167,6 +170,24 @@ export default function Home() {
 
   const productFilters = { product: activeTab, ...filters };
 
+  const handleShare = () => {
+    const shareData = {
+      title: 'GLP 트래커 | 위고비/마운자로 재고 지도',
+      text: '서울, 분당, 동탄 지역 GLP-1 다이어트 주사의 재고 현황과 가격 정보를 실시간으로 확인하세요!',
+      url: window.location.href,
+    };
+    if (navigator.share) {
+      navigator.share(shareData).catch((error) => console.error('Error sharing:', error));
+    } else {
+      navigator.clipboard.writeText(window.location.href);
+      toast({
+        title: '✅ 링크가 복사되었습니다!',
+        description: '친구들에게 공유하여 더 정확한 지도를 만들어보세요.',
+      });
+    }
+  };
+
+
   return (
     <div className="flex flex-col h-screen bg-background text-foreground">
       <Header />
@@ -193,13 +214,23 @@ export default function Home() {
               </TabsContent>
             </Tabs>
             <div className="absolute bottom-4 left-4 z-10 space-y-2 max-w-xs md:max-w-sm">
-              <div className="bg-primary/80 text-primary-foreground text-xs p-2 rounded-md flex items-start gap-2 backdrop-blur-sm">
-                  <Share2 className="h-4 w-4 flex-shrink-0 mt-0.5" />
-                  <div>
-                      <p className="font-bold">함께 만드는 지도</p>
-                      <p>더 많이 제보하고 공유할수록 정보가 정확해집니다!</p>
-                  </div>
+              <div className="bg-primary/80 text-primary-foreground p-3 rounded-md backdrop-blur-sm shadow-lg">
+                <div className="flex items-start gap-3">
+                    <Share2 className="h-5 w-5 flex-shrink-0 mt-0.5" />
+                    <div>
+                        <p className="font-bold">함께 만드는 지도</p>
+                        <p className="text-xs mt-1">더 많이 제보하고 공유할수록 정보가 정확해집니다!</p>
+                    </div>
+                </div>
+                <Button 
+                    size="sm" 
+                    className="w-full mt-3 bg-primary-foreground text-primary hover:bg-primary-foreground/90"
+                    onClick={handleShare}
+                >
+                    공유하기
+                </Button>
               </div>
+
               <div className="bg-black/50 text-white text-xs p-2 rounded-md flex items-start gap-2">
                   <Info className="h-4 w-4 flex-shrink-0 mt-0.5" />
                   <div>
@@ -216,3 +247,5 @@ export default function Home() {
     </div>
   );
 }
+
+    
