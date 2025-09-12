@@ -1,0 +1,95 @@
+
+import { communityPosts } from '@/lib/mock-data';
+import { notFound } from 'next/navigation';
+import type { Metadata } from 'next';
+import Header from '@/components/layout/header';
+import Footer from '@/components/layout/footer';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { ThumbsUp, MessageSquare, Clock, User, ArrowLeft, AlertTriangle } from 'lucide-react';
+import Link from 'next/link';
+
+type Props = {
+  params: { id: string }
+}
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const post = communityPosts.find(p => p.id === params.id);
+
+  if (!post) {
+    return {
+      title: 'Post Not Found',
+    }
+  }
+
+  return {
+    title: post.title,
+    description: post.content.substring(0, 150),
+     alternates: {
+      canonical: `/community/${params.id}`,
+    },
+  }
+}
+
+export default function CommunityPostPage({ params }: Props) {
+  const post = communityPosts.find(p => p.id === params.id);
+
+  if (!post) {
+    notFound();
+  }
+
+  return (
+    <div className="flex flex-col min-h-screen">
+      <Header />
+      <main className="flex-1 bg-muted/40">
+        <div className="container mx-auto py-8 md:py-12">
+          <div className="mx-auto max-w-3xl">
+             <div className="mb-4">
+                <Link href="/community" passHref>
+                    <Button variant="outline" size="sm" className="gap-1">
+                        <ArrowLeft className="h-4 w-4" />
+                        목록으로 돌아가기
+                    </Button>
+                </Link>
+            </div>
+            <Card>
+                <CardHeader>
+                    <CardTitle className="text-2xl font-headline">{post.title}</CardTitle>
+                    <div className="flex items-center gap-4 text-sm text-muted-foreground pt-2">
+                        <span className="flex items-center gap-1"><User className="h-4 w-4" />{post.author}</span>
+                        <span className="flex items-center gap-1"><Clock className="h-4 w-4" />{new Date(post.createdAt).toLocaleDateString('ko-KR')}</span>
+                    </div>
+                </CardHeader>
+                <CardContent className="prose prose-sm max-w-none text-foreground/90 leading-relaxed">
+                   <p>{post.content}</p>
+                </CardContent>
+                <CardFooter className="flex justify-between items-center bg-muted/50 py-3">
+                    <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                        <span className="flex items-center gap-1 font-semibold"><ThumbsUp className="h-4 w-4" /> {post.votes} Votes</span>
+                        <span className="flex items-center gap-1 font-semibold"><MessageSquare className="h-4 w-4" /> {post.commentsCount} Comments</span>
+                    </div>
+                </CardFooter>
+            </Card>
+
+            <div className="mt-8">
+                <h3 className="text-lg font-semibold mb-4">댓글 ({post.commentsCount})</h3>
+                 <Card className="bg-secondary/30 text-center">
+                    <CardContent className="p-8">
+                         <p className="text-muted-foreground">댓글 기능은 현재 준비 중입니다.</p>
+                    </CardContent>
+                </Card>
+            </div>
+
+          </div>
+        </div>
+      </main>
+      <Footer />
+    </div>
+  );
+}
+
+export async function generateStaticParams() {
+  return communityPosts.map(post => ({
+    id: post.id,
+  }));
+}
