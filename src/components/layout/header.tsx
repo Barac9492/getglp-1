@@ -1,3 +1,4 @@
+
 'use client';
 
 import * as React from 'react';
@@ -76,6 +77,19 @@ const UserNav: React.FC<{ isLoggedIn: boolean; onAuthChange: (loggedIn: boolean)
 export default function Header() {
     const [isLoggedIn, setIsLoggedIn] = React.useState(false);
 
+    React.useEffect(() => {
+        // Check localStorage only on the client side
+        const storedLoginStatus = localStorage.getItem('isLoggedIn');
+        if (storedLoginStatus === 'true') {
+            setIsLoggedIn(true);
+        }
+    }, []);
+
+    const handleAuthChange = (loggedIn: boolean) => {
+        setIsLoggedIn(loggedIn);
+        localStorage.setItem('isLoggedIn', String(loggedIn));
+    };
+
     return (
         <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
             <div className="container flex h-14 items-center">
@@ -95,7 +109,7 @@ export default function Header() {
                           정보 제보하기
                         </Button>
                     </Link>
-                    <UserNav isLoggedIn={isLoggedIn} onAuthChange={setIsLoggedIn} />
+                    <UserNav isLoggedIn={isLoggedIn} onAuthChange={handleAuthChange} />
                 </div>
             </div>
         </header>
