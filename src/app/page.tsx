@@ -189,12 +189,11 @@ export default function Home() {
       try {
         await navigator.share(shareData);
       } catch (error) {
-        // Fallback to clipboard if share API fails
-        copyToClipboard();
-        // We only want to log errors that are not AbortError
+        // Fallback to clipboard if share API fails, but don't log AbortError
         if ((error as Error).name !== 'AbortError') {
           console.error('Error sharing:', error);
         }
+        copyToClipboard();
       }
     } else {
         copyToClipboard();
