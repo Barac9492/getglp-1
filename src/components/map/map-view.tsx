@@ -33,8 +33,8 @@ export default function MapView({ clinics, filters }: { clinics: Clinic[]; filte
       }
     } else if (product === 'mounjaro') {
       if (isMounjaroAvailable) {
-        color = items.find(i => i.id === 'mounjaro')?.color || '#16a34a';
-        borderColor = '#991b1b';
+        color = items.find(i => i.id === 'mounjaro')?.color || '#1E88E5';
+        borderColor = '#0D47A1';
         pulse = true;
       } else if (mounjaroStatus === 'unavailable') {
         color = '#dc2626'; // red
@@ -50,10 +50,10 @@ export default function MapView({ clinics, filters }: { clinics: Clinic[]; filte
         borderColor = '#15803d';
         pulse = true;
       } else if (isMounjaroAvailable) {
-        color = items.find(i => i.id === 'mounjaro')?.color || '#16a34a';
-        borderColor = '#991b1b';
+        color = items.find(i => i.id === 'mounjaro')?.color || '#1E88E5';
+        borderColor = '#0D47A1';
         pulse = true;
-      } else if (wegovyStatus === 'unavailable' && mounjaroStatus === 'unavailable') {
+      } else if (wegovyStatus === 'unavailable' || mounjaroStatus === 'unavailable') {
         color = '#dc2626'; // red
         borderColor = '#b91c1c';
       }

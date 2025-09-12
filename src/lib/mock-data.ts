@@ -2,7 +2,7 @@ import type { Item, Clinic, Report } from './types';
 
 export const items: Item[] = [
   { id: 'wegovy', displayNameKo: '위고비', color: '#2E7D32' },
-  { id: 'mounjaro', displayNameKo: '마운자로', color: '#C62828' },
+  { id: 'mounjaro', displayNameKo: '마운자로', color: '#1E88E5' },
 ];
 
 export const clinics: Clinic[] = [
