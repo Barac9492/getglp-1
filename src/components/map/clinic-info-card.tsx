@@ -37,7 +37,7 @@ export default function ClinicInfoCard({ clinic, items }: ClinicInfoCardProps) {
 
   return (
     <Card className="border-0 shadow-none">
-      <CardHeader>
+      <CardHeader className="p-4 pb-2">
         <CardTitle className="font-headline">{clinic.name}</CardTitle>
         <div className="text-sm text-muted-foreground pt-1">
           <p className="flex items-center gap-2"><MapPin className="h-4 w-4" /> {clinic.address}</p>
@@ -45,8 +45,9 @@ export default function ClinicInfoCard({ clinic, items }: ClinicInfoCardProps) {
           {clinic.website && <p className="flex items-center gap-2"><Globe className="h-4 w-4" /> <a href={clinic.website} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">{clinic.website}</a></p>}
         </div>
       </CardHeader>
-      <CardContent className="space-y-4">
-        <div className="space-y-2">
+      <CardContent className="p-4 space-y-4">
+        <div className="space-y-2 rounded-md bg-muted/50 p-3">
+            <h4 className="text-sm font-semibold">실시간 현황</h4>
             {items.map(item => (
                 <div key={item.id} className="flex justify-between items-center">
                     <span className="font-medium">{item.displayNameKo}</span>
@@ -58,23 +59,23 @@ export default function ClinicInfoCard({ clinic, items }: ClinicInfoCardProps) {
                     </div>
                 </div>
             ))}
+            <p className="text-xs text-muted-foreground pt-1">최신 업데이트: {lastUpdatedDate}</p>
         </div>
-        <p className="text-xs text-muted-foreground">최신 업데이트: {lastUpdatedDate}</p>
 
         <div className="space-y-2">
-            <h4 className="text-sm font-semibold flex items-center gap-1"><Bot className="h-4 w-4" /> AI 예측</h4>
+            <h4 className="text-sm font-semibold flex items-center gap-1"><Bot className="h-4 w-4" /> 커뮤니티 예측</h4>
             <AvailabilityPredictor clinic={clinic} item="wegovy" />
             <AvailabilityPredictor clinic={clinic} item="mounjaro" />
         </div>
 
       </CardContent>
-      <CardFooter className="flex-col sm:flex-row gap-2">
-        <Link href={`/report?clinicId=${clinic.id}`} passHref>
-          <Button variant="outline" className="w-full">정보 제보/수정</Button>
-        </Link>
+      <CardFooter className="flex-col sm:flex-row gap-2 p-4 pt-0">
         <a href={`https://map.google.com?q=${encodeURIComponent(clinic.address)}`} target="_blank" rel="noopener noreferrer" className="w-full">
-          <Button className="w-full">길찾기</Button>
+          <Button variant="outline" className="w-full">길찾기</Button>
         </a>
+        <Link href={`/report?clinicId=${clinic.id}`} passHref>
+          <Button className="w-full">정보 제보/수정</Button>
+        </Link>
       </CardFooter>
     </Card>
   );
