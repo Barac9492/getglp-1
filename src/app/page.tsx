@@ -7,11 +7,11 @@ import type { Clinic } from '@/lib/types';
 import FilterPanel from '@/components/map/filter-panel';
 import MapView from '@/components/map/map-view';
 import Header from '@/components/layout/header';
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import { SlidersHorizontal, Info } from 'lucide-react';
+import { Info } from 'lucide-react';
 import Legend from '@/components/map/legend';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 export type Filters = {
   region: string;
@@ -142,46 +142,38 @@ export default function Home() {
   return (
     <div className="flex flex-col h-screen bg-background text-foreground">
       <Header />
-      <main className="flex-1 relative">
-        <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as 'wegovy' | 'mounjaro')} className="w-full h-full">
-            <div className="absolute top-4 left-1/2 -translate-x-1/2 z-20">
-                <TabsList>
+      <main className="flex flex-1 overflow-hidden">
+        <aside className="w-full md:w-96 lg:w-[26rem] border-r flex flex-col">
+            <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as 'wegovy' | 'mounjaro')} className="p-4">
+                <TabsList className="grid w-full grid-cols-2">
                     <TabsTrigger value="wegovy">위고비</TabsTrigger>
                     <TabsTrigger value="mounjaro">마운자로</TabsTrigger>
                 </TabsList>
-            </div>
-          <TabsContent value="wegovy" className="w-full h-full m-0">
-             <MapView clinics={filteredClinics} filters={productFilters} />
-          </TabsContent>
-          <TabsContent value="mounjaro" className="w-full h-full m-0">
-             <MapView clinics={filteredClinics} filters={productFilters} />
-          </TabsContent>
-        </Tabs>
-
-        <div className="absolute top-20 md:top-4 left-4 right-4 md:left-auto md:w-[24rem] lg:w-[26rem] z-10">
-           <Accordion type="single" collapsible defaultValue="filters" className="bg-background/90 backdrop-blur-sm rounded-lg shadow-lg">
-            <AccordionItem value="filters" className="border-none">
-              <AccordionTrigger className="p-4 hover:no-underline">
-                <div className="flex items-center gap-2 font-headline">
-                  <SlidersHorizontal className="h-5 w-5" />
-                  <span className="text-lg">필터</span>
+            </Tabs>
+            <ScrollArea className="flex-1">
+                 <FilterPanel filters={filters} setFilters={setFilters} product={activeTab} minPrice={minPrice} maxPrice={maxPrice} />
+            </ScrollArea>
+        </aside>
+        
+        <div className="flex-1 relative">
+            <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as 'wegovy' | 'mounjaro')} className="w-full h-full">
+              <TabsContent value="wegovy" className="w-full h-full m-0">
+                <MapView clinics={filteredClinics} filters={productFilters} />
+              </TabsContent>
+              <TabsContent value="mounjaro" className="w-full h-full m-0">
+                <MapView clinics={filteredClinics} filters={productFilters} />
+              </TabsContent>
+            </Tabs>
+            <div className="absolute bottom-4 left-4 z-10 bg-black/50 text-white text-xs p-2 rounded-md max-w-xs md:max-w-sm flex items-start gap-2">
+                <Info className="h-4 w-4 flex-shrink-0 mt-0.5" />
+                <div>
+                    <p className="font-bold">면책 조항</p>
+                    <p>본 정보는 크라우드소싱 기반이며 정확성을 보장하지 않습니다. 방문 전 반드시 의료 기관에 직접 확인하세요.</p>
                 </div>
-              </AccordionTrigger>
-              <AccordionContent className="border-t">
-                  <FilterPanel filters={filters} setFilters={setFilters} product={activeTab} minPrice={minPrice} maxPrice={maxPrice} />
-              </AccordionContent>
-            </AccordionItem>
-          </Accordion>
-        </div>
-        <div className="absolute bottom-4 left-4 z-10 bg-black/50 text-white text-xs p-2 rounded-md max-w-xs md:max-w-sm flex items-start gap-2">
-            <Info className="h-4 w-4 flex-shrink-0 mt-0.5" />
-            <div>
-                <p className="font-bold">면책 조항</p>
-                <p>본 정보는 크라우드소싱 기반이며 정확성을 보장하지 않습니다. 방문 전 반드시 의료 기관에 직접 확인하세요.</p>
             </div>
-        </div>
-        <div className="absolute bottom-4 right-4 z-10">
-          <Legend filters={productFilters} />
+            <div className="absolute bottom-4 right-4 z-10">
+              <Legend filters={productFilters} />
+            </div>
         </div>
       </main>
     </div>

@@ -72,9 +72,9 @@ export default function FilterPanel({ filters, setFilters, product, minPrice, ma
   return (
     <Card className="border-0 shadow-none bg-transparent">
       <CardContent className="p-0">
-        <Accordion type="multiple" defaultValue={['region', 'price']} className="w-full">
+        <Accordion type="multiple" defaultValue={['region', 'price', 'updated', 'verification']} className="w-full">
           <AccordionItem value="region" className="border-b-0">
-            <AccordionTrigger className="px-4 py-3">지역</AccordionTrigger>
+            <AccordionTrigger className="px-4 py-3 text-base">지역</AccordionTrigger>
             <AccordionContent className="px-4">
               <Select
                 value={filters.region}
@@ -93,7 +93,7 @@ export default function FilterPanel({ filters, setFilters, product, minPrice, ma
           </AccordionItem>
 
           <AccordionItem value="price" className="border-b-0">
-            <AccordionTrigger className="px-4 py-3">가격 범위 (원)</AccordionTrigger>
+            <AccordionTrigger className="px-4 py-3 text-base">가격 범위 (원)</AccordionTrigger>
             <AccordionContent className="px-4">
               <div className="space-y-4 pt-2">
                 <Slider
@@ -112,7 +112,7 @@ export default function FilterPanel({ filters, setFilters, product, minPrice, ma
           </AccordionItem>
           
           <AccordionItem value="updated" className="border-b-0">
-            <AccordionTrigger className="px-4 py-3">업데이트</AccordionTrigger>
+            <AccordionTrigger className="px-4 py-3 text-base">업데이트</AccordionTrigger>
             <AccordionContent className="px-4">
                 <RadioGroup
                     value={filters.lastUpdated}
@@ -130,7 +130,7 @@ export default function FilterPanel({ filters, setFilters, product, minPrice, ma
           </AccordionItem>
 
           <AccordionItem value="verification" className="border-b-0">
-            <AccordionTrigger className="px-4 py-3">검증 상태</AccordionTrigger>
+            <AccordionTrigger className="px-4 py-3 text-base">검증 상태</AccordionTrigger>
             <AccordionContent className="px-4">
                  <RadioGroup
                     value={filters.verificationStatus}
@@ -151,5 +151,3 @@ export default function FilterPanel({ filters, setFilters, product, minPrice, ma
     </Card>
   );
 }
-
-    
