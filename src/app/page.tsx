@@ -23,6 +23,10 @@ export type Filters = {
 export default function Home() {
   const [activeTab, setActiveTab] = React.useState<'wegovy' | 'mounjaro'>('wegovy');
   
+  React.useEffect(() => {
+    document.title = `${items.find(i => i.id === activeTab)?.displayNameKo} 재고 지도 | GLP 트래커`;
+  }, [activeTab]);
+
   const reports = React.useMemo(() => {
     const adminReports = allClinics.map(clinic => {
       const wegovyReport = {
@@ -176,6 +180,3 @@ export default function Home() {
     </div>
   );
 }
-
-
-    

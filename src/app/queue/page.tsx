@@ -2,6 +2,15 @@ import Header from '@/components/layout/header';
 import Footer from '@/components/layout/footer';
 import { reports as mockReports, clinics } from '@/lib/mock-data';
 import ReportCard from '@/components/queue/report-card';
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: '최신 제보 목록',
+  description: '위고비, 마운자로 등 GLP-1 의약품 가용성에 대한 최신 사용자 제보를 확인하고, 정보의 신뢰도를 높이기 위해 투표에 참여하세요.',
+  alternates: {
+    canonical: '/queue',
+  },
+};
 
 export default function QueuePage() {
     const allReports = [

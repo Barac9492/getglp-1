@@ -1,6 +1,15 @@
 import Header from '@/components/layout/header';
 import Footer from '@/components/layout/footer';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: '이용 안내 및 법적 고지',
+  description: 'GLP 트래커 서비스의 이용 안내, 면책 조항, 개인정보 처리방침 및 법적 고지에 대해 알아보세요.',
+  alternates: {
+    canonical: '/guide',
+  },
+};
 
 export default function GuidePage() {
   return (
