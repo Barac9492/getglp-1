@@ -170,20 +170,34 @@ export default function Home() {
 
   const productFilters = { product: activeTab, ...filters };
 
-  const handleShare = () => {
+  const handleShare = async () => {
     const shareData = {
       title: 'GLP 트래커 | 위고비/마운자로 재고 지도',
       text: '서울, 분당, 동탄 지역 GLP-1 다이어트 주사의 재고 현황과 가격 정보를 실시간으로 확인하세요!',
       url: window.location.href,
     };
+    
+    const copyToClipboard = () => {
+        navigator.clipboard.writeText(window.location.href);
+        toast({
+            title: '✅ 링크가 복사되었습니다!',
+            description: '친구들에게 공유하여 더 정확한 지도를 만들어보세요.',
+        });
+    }
+
     if (navigator.share) {
-      navigator.share(shareData).catch((error) => console.error('Error sharing:', error));
+      try {
+        await navigator.share(shareData);
+      } catch (error) {
+        // This error is thrown if the user cancels the share dialog.
+        // We can safely ignore it, but we'll fall back to clipboard just in case.
+        if ((error as Error).name !== 'AbortError') {
+            console.error('Error sharing:', error);
+            copyToClipboard();
+        }
+      }
     } else {
-      navigator.clipboard.writeText(window.location.href);
-      toast({
-        title: '✅ 링크가 복사되었습니다!',
-        description: '친구들에게 공유하여 더 정확한 지도를 만들어보세요.',
-      });
+        copyToClipboard();
     }
   };
 
@@ -247,5 +261,7 @@ export default function Home() {
     </div>
   );
 }
+
+    
 
     
