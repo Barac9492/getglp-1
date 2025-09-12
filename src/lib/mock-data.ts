@@ -1,5 +1,5 @@
 
-import type { Item, Clinic, Report } from './types';
+import type { Item, Clinic, Report, CommunityPost } from './types';
 
 export const items: Item[] = [
   { id: 'wegovy', displayNameKo: '위고비', color: '#2E7D32' },
@@ -772,6 +772,53 @@ export const reports: Report[] = [
     }
 ]
 
+export const communityPosts: CommunityPost[] = [
+    {
+        id: 'post-1',
+        title: '위고비/마운자로 주사 맞을 때 식단 조절 팁 있나요?',
+        author: '다이어터',
+        createdAt: new Date(Date.now() - 86400000 * 1).toISOString(),
+        _date: new Date(Date.now() - 86400000 * 1),
+        votes: 28,
+        commentsCount: 12,
+        category: '식단/운동',
+        content: '주사 시작한 지 2주차인데, 식욕이 많이 줄긴 했지만 어떤 음식을 먹는 게 좋을지 고민입니다. 다들 어떻게 하고 계신가요? 단백질 위주로 먹으라는 얘기는 들었는데, 구체적인 식단 예시나 운동 병행 팁이 궁금합니다.'
+    },
+    {
+        id: 'post-2',
+        title: '주사 후 메스꺼움, 어떻게 대처하시나요?',
+        author: '초보사용자',
+        createdAt: new Date(Date.now() - 86400000 * 3).toISOString(),
+        _date: new Date(Date.now() - 86400000 * 3),
+        votes: 45,
+        commentsCount: 20,
+        category: '부작용 관리',
+        content: '저용량으로 시작했는데도 계속 속이 울렁거려서 힘드네요. 시간이 지나면 괜찮아진다고는 하는데, 그 전까지 좀 편해질 수 있는 방법이 있을까요? 생강차나 다른 민간요법 시도해보신 분 계시면 후기 부탁드립니다.'
+    },
+    {
+        id: 'post-3',
+        title: '운동 병행 질문! 유산소 vs. 근력 어떤 게 더 효과적인가요?',
+        author: '헬린이',
+        createdAt: new Date(Date.now() - 86400000 * 5).toISOString(),
+        _date: new Date(Date.now() - 86400000 * 5),
+        votes: 15,
+        commentsCount: 7,
+        category: '식단/운동',
+        content: '체중 감량 속도를 높이고 싶은데, 주사랑 같이 할 운동으로 어떤 게 좋을지 고민입니다. 유산소로 지방을 태우는 게 우선일지, 아니면 근력 운동으로 기초대사량을 높이는 게 장기적으로 이득일지... 경험자분들의 조언을 구합니다.'
+    },
+     {
+        id: 'post-4',
+        title: '다들 주사는 어느 시간대에 맞으시나요?',
+        author: '궁금해요',
+        createdAt: new Date(Date.now() - 86400000 * 7).toISOString(),
+        _date: new Date(Date.now() - 86400000 * 7),
+        votes: 33,
+        commentsCount: 15,
+        category: '정보공유',
+        content: '아침에 맞는 게 좋다는 사람도 있고, 저녁에 맞는 게 부작용 관리에 좋다는 사람도 있어서 헷갈리네요. 요일은 보통 주말로 잡으시나요? 다들 본인만의 루틴이 있으시면 공유해주세요!'
+    }
+]
     
 
     
+

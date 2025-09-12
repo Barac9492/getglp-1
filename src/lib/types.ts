@@ -51,3 +51,15 @@ export interface Report {
   verification: 'unverified' | 'community-verified' | 'admin-verified';
   votes: number;
 }
+
+export interface CommunityPost {
+    id: string;
+    title: string;
+    author: string;
+    createdAt: string;
+    _date: Date;
+    votes: number;
+    commentsCount: number;
+    category: string;
+    content: string;
+}
