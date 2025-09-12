@@ -1,0 +1,81 @@
+'use client';
+
+import Link from 'next/link';
+import { Card, CardHeader, CardTitle, CardContent, CardFooter } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Globe, MapPin, Phone, Bot } from 'lucide-react';
+import type { Clinic, Item } from '@/lib/types';
+import { AvailabilityPredictor } from '../availability-predictor';
+
+interface ClinicInfoCardProps {
+  clinic: Clinic;
+  items: Item[];
+}
+
+const getBadgeVariant = (status: 'available' | 'unavailable' | 'unknown'): 'default' | 'destructive' | 'secondary' => {
+  switch (status) {
+    case 'available':
+      return 'default';
+    case 'unavailable':
+      return 'destructive';
+    default:
+      return 'secondary';
+  }
+};
+
+const getStatusInKorean = (status: 'available' | 'unavailable' | 'unknown'): string => {
+    switch (status) {
+        case 'available': return '가용';
+        case 'unavailable': return '비가용';
+        default: return '미확인';
+    }
+}
+
+export default function ClinicInfoCard({ clinic, items }: ClinicInfoCardProps) {
+  const lastUpdatedDate = new Date(clinic.lastUpdated).toLocaleDateString('ko-KR');
+
+  return (
+    <Card className="border-0 shadow-none">
+      <CardHeader>
+        <CardTitle className="font-headline">{clinic.name}</CardTitle>
+        <div className="text-sm text-muted-foreground pt-1">
+          <p className="flex items-center gap-2"><MapPin className="h-4 w-4" /> {clinic.address}</p>
+          {clinic.phone && <p className="flex items-center gap-2"><Phone className="h-4 w-4" /> {clinic.phone}</p>}
+          {clinic.website && <p className="flex items-center gap-2"><Globe className="h-4 w-4" /> <a href={clinic.website} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">{clinic.website}</a></p>}
+        </div>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        <div className="space-y-2">
+            {items.map(item => (
+                <div key={item.id} className="flex justify-between items-center">
+                    <span className="font-medium">{item.displayNameKo}</span>
+                    <div className="flex items-center gap-2">
+                        {clinic.price[item.id] && <span className="text-sm text-muted-foreground">{clinic.price[item.id]?.toLocaleString()}원</span>}
+                        <Badge variant={getBadgeVariant(clinic.status[item.id])} style={clinic.status[item.id] === 'available' ? {backgroundColor: item.color} : {}}>
+                            {getStatusInKorean(clinic.status[item.id])}
+                        </Badge>
+                    </div>
+                </div>
+            ))}
+        </div>
+        <p className="text-xs text-muted-foreground">최신 업데이트: {lastUpdatedDate}</p>
+
+        <div className="space-y-2">
+            <h4 className="text-sm font-semibold flex items-center gap-1"><Bot className="h-4 w-4" /> AI 예측</h4>
+            <AvailabilityPredictor clinic={clinic} item="wegovy" />
+            <AvailabilityPredictor clinic={clinic} item="mounjaro" />
+        </div>
+
+      </CardContent>
+      <CardFooter className="flex-col sm:flex-row gap-2">
+        <Link href={`/report?clinicId=${clinic.id}`} passHref>
+          <Button variant="outline" className="w-full">정보 제보/수정</Button>
+        </Link>
+        <a href={`https://map.google.com?q=${encodeURIComponent(clinic.address)}`} target="_blank" rel="noopener noreferrer" className="w-full">
+          <Button className="w-full">길찾기</Button>
+        </a>
+      </CardFooter>
+    </Card>
+  );
+}
