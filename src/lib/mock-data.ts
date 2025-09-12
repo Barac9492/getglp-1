@@ -55,7 +55,7 @@ export const clinics: Clinic[] = [
     "address": "경기도 화성시 동탄중심상가2길 2",
     "location": { "latitude": 37.2046, "longitude": 127.0701 },
     "mapPosition": { "top": "0", "left": "0" },
-geo_hash: "wydh8",
+    "geohash": "wydh8",
     "district": "동탄",
     "phone": "031-444-4444",
     "status": { "wegovy": "unknown", "mounjaro": "available" },
@@ -707,7 +707,7 @@ geo_hash: "wydh8",
     "lastUpdated": new Date(Date.now() - 86400000 * 2).toISOString(),
     "confidenceScore": 0.9
   }
-]
+];
 
 
 export const reports: Report[] = [
@@ -771,5 +771,7 @@ export const reports: Report[] = [
         note: '전화해봤는데 두 약 모두 현재 품절이고, 재입고 예정 없다고 합니다.'
     }
 ]
+
+    
 
     
