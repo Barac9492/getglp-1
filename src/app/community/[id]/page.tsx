@@ -8,6 +8,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Button } from '@/components/ui/button';
 import { ThumbsUp, MessageSquare, Clock, User, ArrowLeft, AlertTriangle } from 'lucide-react';
 import Link from 'next/link';
+import CommentSection from '@/components/community/comment-section';
 
 type Props = {
   params: { id: string }
@@ -72,12 +73,7 @@ export default function CommunityPostPage({ params }: Props) {
             </Card>
 
             <div className="mt-8">
-                <h3 className="text-lg font-semibold mb-4">댓글 ({post.commentsCount})</h3>
-                 <Card className="bg-secondary/30 text-center">
-                    <CardContent className="p-8">
-                         <p className="text-muted-foreground">댓글 기능은 현재 준비 중입니다.</p>
-                    </CardContent>
-                </Card>
+                <CommentSection postId={post.id} />
             </div>
 
           </div>
