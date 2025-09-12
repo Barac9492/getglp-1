@@ -1,11 +1,13 @@
 'use client';
 
+import * as React from 'react';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { ThumbsUp, ThumbsDown, Flag, User, Clock, Phone, CheckCircle, HelpCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import type { Report } from '@/lib/types';
 import { items } from '@/lib/mock-data';
+import { cn } from '@/lib/utils';
 
 const verificationIcon = {
     'unverified': <HelpCircle className="h-4 w-4 text-yellow-500" />,
@@ -25,6 +27,25 @@ interface ReportCardProps {
 
 export default function ReportCard({ report }: ReportCardProps) {
     const item = items.find(i => i.id === report.item);
+    const [votes, setVotes] = React.useState(report.votes);
+    const [voteAction, setVoteAction] = React.useState<'up' | 'down' | null>(null);
+
+    const handleVote = (action: 'up' | 'down') => {
+        if (action === voteAction) {
+            // User is undoing their vote
+            setVoteAction(null);
+            setVotes(votes + (action === 'up' ? -1 : 0)); // Downvotes don't affect score in this model
+        } else {
+            // New vote or changing vote
+            let newVoteCount = votes;
+            if (voteAction === 'up') newVoteCount -=1; // remove previous upvote
+            
+            if (action === 'up') newVoteCount += 1;
+            
+            setVotes(newVoteCount);
+            setVoteAction(action);
+        }
+    }
     
     return (
         <Card>
@@ -62,11 +83,21 @@ export default function ReportCard({ report }: ReportCardProps) {
             </CardContent>
             <CardFooter className="flex justify-between items-center">
                 <div className="flex items-center gap-2">
-                    <Button variant="outline" size="sm" className="gap-1">
+                    <Button 
+                        variant="outline" 
+                        size="sm" 
+                        className={cn("gap-1", voteAction === 'up' && 'bg-primary/10 border-primary text-primary')}
+                        onClick={() => handleVote('up')}
+                    >
                         <ThumbsUp className="h-4 w-4" />
-                        <span>신뢰 ({report.votes})</span>
+                        <span>신뢰 ({votes})</span>
                     </Button>
-                    <Button variant="outline" size="sm" className="gap-1">
+                    <Button 
+                        variant="outline" 
+                        size="sm" 
+                        className={cn("gap-1", voteAction === 'down' && 'bg-destructive/10 border-destructive text-destructive')}
+                        onClick={() => handleVote('down')}
+                    >
                         <ThumbsDown className="h-4 w-4" />
                         <span>의심</span>
                     </Button>
