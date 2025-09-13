@@ -25,7 +25,7 @@ const Logo = () => (
 )
 
 const navLinks = [
-  { href: '/', label: '지도', icon: <Map className="h-4 w-4" /> },
+  { href: '/map', label: '지도', icon: <Map className="h-4 w-4" /> },
   { href: '/queue', label: '제보 목록', icon: <List className="h-4 w-4" /> },
   { href: '/community', label: '커뮤니티', icon: <MessageSquare className="h-4 w-4" /> },
   { href: '/guide', label: '이용 안내', icon: <HelpCircle className="h-4 w-4" /> },

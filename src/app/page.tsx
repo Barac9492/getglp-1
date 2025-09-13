@@ -1,211 +1,119 @@
-
-'use client';
-
-import * as React from 'react';
-import { clinics as allClinics, items } from '@/lib/mock-data';
-import type { Clinic, Report } from '@/lib/types';
-import FilterPanel from '@/components/map/filter-panel';
-import MapView from '@/components/map/map-view';
 import Header from '@/components/layout/header';
-import { Info, Share2 } from 'lucide-react';
-import Legend from '@/components/map/legend';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { db } from '@/lib/firebase';
-import { collection, getDocs, orderBy, query, onSnapshot } from 'firebase/firestore';
+import Footer from '@/components/layout/footer';
+import { Button } from '@/components/ui/button';
+import Link from 'next/link';
+import { ArrowRight, MapPin, Edit, Users } from 'lucide-react';
+import { communityPosts } from '@/lib/mock-data';
+import { Card, CardHeader, CardTitle, CardContent, CardFooter } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { ThumbsUp, MessageSquare } from 'lucide-react';
+import Image from 'next/image';
+import { PlaceHolderImages } from '@/lib/placeholder-images';
 
-
-export type Filters = {
-  region: string;
-  priceRange: [number, number];
-  lastUpdated: string;
-  verificationStatus: string;
-};
-
-export default function Home() {
-  const [activeTab, setActiveTab] = React.useState<'wegovy' | 'mounjaro'>('wegovy');
-  const [firestoreReports, setFirestoreReports] = React.useState<Report[]>([]);
-  
-  React.useEffect(() => {
-    document.title = `${items.find(i => i.id === activeTab)?.displayNameKo} 재고 지도 | GLP 트래커`;
-  }, [activeTab]);
-
-  React.useEffect(() => {
-    const reportsCollection = collection(db, 'reports');
-    const q = query(reportsCollection, orderBy('reportedAt', 'desc'));
-    
-    // Use onSnapshot for real-time updates
-    const unsubscribe = onSnapshot(q, (snapshot) => {
-      const reports = snapshot.docs.map(doc => {
-        const data = doc.data();
-        return {
-          id: doc.id,
-          ...data,
-          _date: data.reportedAt?.toDate() || new Date(),
-          reportedAt: data.reportedAt?.toDate()?.toISOString() || new Date().toISOString(),
-        } as Report;
-      });
-      setFirestoreReports(reports);
-    });
-
-    // Clean up the listener when the component unmounts
-    return () => unsubscribe();
-  }, []);
-
-  const reports = React.useMemo(() => {
-    const adminReports = allClinics.map(clinic => {
-      const wegovyReport = {
-        id: `admin-${clinic.id}-wegovy`,
-        clinicId: clinic.id,
-        clinicName: clinic.name,
-        item: 'wegovy' as const,
-        availability: clinic.status.wegovy,
-        priceKRW: clinic.price.wegovy,
-        reportedAt: clinic.lastUpdated,
-        reportedBy: 'admin',
-        _date: new Date(clinic.lastUpdated),
-        verification: 'admin-verified' as const,
-        sourceType: 'other' as const,
-        votes: 999,
-      }
-      const mounjaroReport = {
-          id: `admin-${clinic.id}-mounjaro`,
-          clinicId: clinic.id,
-          clinicName: clinic.name,
-          item: 'mounjaro' as const,
-          availability: clinic.status.mounjaro,
-          priceKRW: clinic.price.mounjaro,
-          reportedAt: clinic.lastUpdated,
-          reportedBy: 'admin',
-          _date: new Date(clinic.lastUpdated),
-          verification: 'admin-verified' as const,
-          sourceType: 'other' as const,
-          votes: 999,
-      }
-      if (clinic.status.wegovy === 'unknown' && clinic.status.mounjaro === 'unknown') {
-        return [];
-      }
-      if(clinic.status.wegovy === 'unknown') {
-        return [mounjaroReport];
-      }
-      if(clinic.status.mounjaro === 'unknown') {
-        return [wegovyReport];
-      }
-      return [wegovyReport, mounjaroReport];
-    }).flat() as Report[];
-
-    return [...firestoreReports, ...adminReports];
-  }, [firestoreReports]);
-
-  const minPrice = 200000;
-  const maxPrice = 600000;
-
-  const [filters, setFilters] = React.useState<Filters>({
-    region: 'all',
-    priceRange: [minPrice, maxPrice],
-    lastUpdated: 'all',
-    verificationStatus: 'all',
-  });
-
-  const filteredClinics = React.useMemo(() => {
-    return allClinics.filter((clinic) => {
-      const { region, priceRange, lastUpdated, verificationStatus } = filters;
-
-      // When filtering, we only want to show clinics that have the item available
-      if (clinic.status[activeTab] !== 'available') return false;
-
-      if (region !== 'all' && clinic.district !== region) {
-        return false;
-      }
-      
-      const price = clinic.price[activeTab];
-      const hasPrice = price !== undefined && price !== null;
-      
-      // Price filter should only apply if the clinic has a price for the active product
-      if (hasPrice && (price < priceRange[0] || price > priceRange[1])) {
-        return false;
-      }
-
-      if (lastUpdated !== 'all') {
-        const now = new Date();
-        const updatedDate = new Date(clinic.lastUpdated);
-        let days = 0;
-        if (lastUpdated === '24h') days = 1;
-        if (lastUpdated === '7d') days = 7;
-        if (lastUpdated === '30d') days = 30;
-        
-        if (days > 0 && (now.getTime() - updatedDate.getTime()) > days * 24 * 60 * 60 * 1000) {
-            return false;
-        }
-      }
-
-      const latestReport = [...reports].filter(r => r.clinicId === clinic.id).sort((a,b) => b._date.getTime() - a._date.getTime())[0];
-      if (verificationStatus !== 'all' && (!latestReport || latestReport.verification !== verificationStatus)) {
-        return false;
-      }
-
-      return true;
-    });
-  }, [filters, reports, activeTab]);
-
-  const productFilters = { product: activeTab, ...filters };
+export default function LandingPage() {
+  const mapImage = PlaceHolderImages.find(img => img.id === 'map-background');
+  const latestPosts = communityPosts.sort((a,b) => b._date.getTime() - a._date.getTime()).slice(0, 3);
 
   return (
-    <div className="flex flex-col h-screen bg-background text-foreground">
+    <div className="flex flex-col min-h-screen">
       <Header />
-      <main className="flex flex-1 overflow-hidden">
-        <aside className="w-full md:w-96 lg:w-[26rem] border-r flex flex-col">
-            <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as 'wegovy' | 'mounjaro')} className="p-4">
-                <TabsList className="grid w-full grid-cols-2">
-                    <TabsTrigger value="wegovy">위고비</TabsTrigger>
-                    <TabsTrigger value="mounjaro">마운자로</TabsTrigger>
-                </TabsList>
-            </Tabs>
-            <ScrollArea className="flex-1">
-                 <FilterPanel filters={filters} setFilters={setFilters} product={activeTab} minPrice={minPrice} maxPrice={maxPrice} />
-            </ScrollArea>
-        </aside>
-        
-        <div className="flex-1 relative">
-            <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as 'wegovy' | 'mounjaro')} className="w-full h-full">
-              <TabsContent value="wegovy" className="w-full h-full m-0">
-                <MapView clinics={filteredClinics} filters={productFilters} />
-              </TabsContent>
-              <TabsContent value="mounjaro" className="w-full h-full m-0">
-                <MapView clinics={filteredClinics} filters={productFilters} />
-              </TabsContent>
-            </Tabs>
-            <div className="absolute bottom-4 left-4 z-10 space-y-2 max-w-xs md:max-w-sm">
-              <div className="bg-primary/80 text-primary-foreground p-3 rounded-md backdrop-blur-sm shadow-lg">
-                <div className="flex items-start gap-3">
-                    <Share2 className="h-5 w-5 flex-shrink-0 mt-0.5" />
-                    <div>
-                        <p className="font-bold">함께 만드는 지도</p>
-                        <p className="text-xs mt-1">더 많이 제보하고 공유할수록 정보가 정확해집니다!</p>
-                    </div>
-                </div>
-              </div>
+      <main className="flex-1">
+        {/* Hero Section */}
+        <section className="relative bg-secondary/30 py-20 md:py-32">
+             {mapImage && (
+                <Image
+                    src={mapImage.imageUrl}
+                    alt={mapImage.description}
+                    fill
+                    className="object-cover object-center opacity-10"
+                    data-ai-hint={mapImage.imageHint}
+                />
+            )}
+          <div className="container mx-auto text-center relative">
+            <h1 className="text-4xl md:text-5xl font-bold font-headline mb-4 text-primary">
+              GLP-1 재고, 이제 찾아다니지 마세요.
+            </h1>
+            <p className="text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto">
+              서울, 분당, 동탄 지역의 위고비·마운자로 재고 현황과 가격 정보를 사용자들이 직접 공유하는 실시간 지도로 확인하고, 커뮤니티에서 경험을 나누세요.
+            </p>
+            <div className="mt-8 flex justify-center gap-4">
+              <Link href="/map" passHref>
+                <Button size="lg" className="gap-2">
+                  <MapPin />
+                  실시간 재고 지도 보기
+                </Button>
+              </Link>
+              <Link href="/report" passHref>
+                <Button size="lg" variant="outline" className="gap-2">
+                  <Edit />
+                  정보 제보하기
+                </Button>
+              </Link>
+            </div>
+          </div>
+        </section>
 
-              <div className="bg-black/50 text-white text-xs p-2 rounded-md flex items-start gap-2">
-                  <Info className="h-4 w-4 flex-shrink-0 mt-0.5" />
-                  <div>
-                      <p className="font-bold">면책 조항</p>
-                      <p>본 정보는 크라우드소싱 기반이며 정확성을 보장하지 않습니다. 방문 전 반드시 의료 기관에 직접 확인하세요.</p>
-                  </div>
+        {/* Features Section */}
+        <section className="py-16 md:py-24 bg-background">
+          <div className="container mx-auto">
+            <h2 className="text-3xl font-bold text-center mb-12 font-headline">주요 기능</h2>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
+              <div className="flex flex-col items-center">
+                <MapPin className="h-12 w-12 text-primary mb-4" />
+                <h3 className="text-xl font-semibold mb-2">실시간 재고 지도</h3>
+                <p className="text-muted-foreground">사용자 제보를 바탕으로 한 위고비·마운자로 재고 및 가격 정보를 지도로 한눈에 파악하세요.</p>
+              </div>
+              <div className="flex flex-col items-center">
+                <Edit className="h-12 w-12 text-primary mb-4" />
+                <h3 className="text-xl font-semibold mb-2">정보 제보 및 검증</h3>
+                <p className="text-muted-foreground">최신 정보를 제보하여 커뮤니티에 기여하고, 다른 사용자의 제보를 함께 검증하여 신뢰도를 높여요.</p>
+              </div>
+              <div className="flex flex-col items-center">
+                <Users className="h-12 w-12 text-primary mb-4" />
+                <h3 className="text-xl font-semibold mb-2">사용자 커뮤니티</h3>
+                <p className="text-muted-foreground">식단, 운동, 부작용 관리 등 유용한 팁과 경험을 다른 사용자들과 자유롭게 나누세요.</p>
               </div>
             </div>
-            <div className="absolute bottom-4 right-4 z-10">
-              <Legend filters={productFilters} />
+          </div>
+        </section>
+
+        {/* Community Section */}
+        <section className="py-16 md:py-24 bg-muted/40">
+          <div className="container mx-auto">
+            <div className="flex justify-between items-center mb-8">
+              <h2 className="text-3xl font-bold font-headline">최신 커뮤니티 글</h2>
+              <Link href="/community" passHref>
+                <Button variant="ghost">
+                  더 보기 <ArrowRight className="ml-2 h-4 w-4" />
+                </Button>
+              </Link>
             </div>
-        </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {latestPosts.map(post => (
+                <Card key={post.id} className="flex flex-col">
+                  <CardHeader>
+                    <Badge variant="secondary" className="w-fit">{post.category}</Badge>
+                    <CardTitle className="text-lg pt-2">{post.title}</CardTitle>
+                  </CardHeader>
+                  <CardContent className="flex-1">
+                    <p className="text-muted-foreground line-clamp-3">{post.content}</p>
+                  </CardContent>
+                  <CardFooter className="flex justify-between items-center text-sm text-muted-foreground">
+                    <div className="flex gap-4">
+                      <span className="flex items-center gap-1"><ThumbsUp className="h-4 w-4" />{post.votes}</span>
+                      <span className="flex items-center gap-1"><MessageSquare className="h-4 w-4" />{post.commentsCount}</span>
+                    </div>
+                     <Link href={`/community/${post.id}`} className="text-primary hover:underline">
+                      읽어보기
+                    </Link>
+                  </CardFooter>
+                </Card>
+              ))}
+            </div>
+          </div>
+        </section>
       </main>
+      <Footer />
     </div>
   );
 }
-
-    
-
-    
-
-    
