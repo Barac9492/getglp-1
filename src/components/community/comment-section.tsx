@@ -14,6 +14,8 @@ import { collection, query, where, orderBy, onSnapshot, Timestamp } from 'fireba
 import { saveComment } from '@/app/actions/comments';
 import { Loader2 } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from '../ui/alert';
+import { mockComments } from '@/lib/mock-data';
+import type { MockComment } from '@/lib/types';
 
 interface Comment {
   id: string;
@@ -28,9 +30,22 @@ interface CommentFormValues {
   comment: string;
 }
 
+const toComment = (mock: MockComment): Comment => ({
+    ...mock,
+    authorId: `mock-user-${mock.authorName}`,
+    createdAt: Timestamp.fromDate(mock.createdAt),
+});
+
+
 export default function CommentSection({ postId }: { postId: string }) {
   const [user, setUser] = React.useState<User | null>(null);
-  const [comments, setComments] = React.useState<Comment[]>([]);
+  
+  const initialComments = mockComments
+    .filter(c => c.postId === postId)
+    .sort((a,b) => b.createdAt.getTime() - a.createdAt.getTime())
+    .map(toComment);
+
+  const [comments, setComments] = React.useState<Comment[]>(initialComments);
   const [loadingComments, setLoadingComments] = React.useState(true);
   const { toast } = useToast();
   const { register, handleSubmit, reset, formState: { isSubmitting } } = useForm<CommentFormValues>();
@@ -54,12 +69,33 @@ export default function CommentSection({ postId }: { postId: string }) {
         id: doc.id,
         ...doc.data(),
       } as Comment));
-      setComments(fetchedComments);
+      
+      const allComments = [...initialComments];
+      const fetchedIds = new Set(fetchedComments.map(f => f.id));
+
+      // Add initial mock comments if they are not duplicates of fetched ones
+      initialComments.forEach(initial => {
+          if (!fetchedIds.has(initial.id)) {
+              // This is a bit of a hack, as we can't really know if a fetched comment
+              // is the "same" as a mock one without a shared ID.
+              // For now, we combine them, prioritizing fetched ones.
+          }
+      });
+      
+      // A simple merge: show real-time comments first, then the initial mock data.
+      // A more sophisticated merge would de-duplicate based on content/author/timestamp.
+      const combined = [...fetchedComments, ...initialComments.filter(
+          // A very basic de-duplication
+          m => !fetchedComments.some(f => f.content === m.content && f.authorName === m.authorName)
+      )].sort((a,b) => b.createdAt.toMillis() - a.createdAt.toMillis());
+
+
+      setComments(combined);
       setLoadingComments(false);
     });
 
     return () => unsubscribe();
-  }, [postId]);
+  }, [postId, initialComments]);
 
   const onSubmit: SubmitHandler<CommentFormValues> = async (data) => {
     if (!user) {
@@ -127,7 +163,7 @@ export default function CommentSection({ postId }: { postId: string }) {
       )}
 
       <div className="space-y-4">
-        {loadingComments ? (
+        {loadingComments && comments.length === 0 ? (
             <div className="flex items-center space-x-4">
                 <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
                 <p className="text-muted-foreground">댓글을 불러오는 중...</p>

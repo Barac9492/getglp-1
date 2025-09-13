@@ -1,5 +1,5 @@
 
-import type { Item, Clinic, Report, CommunityPost } from './types';
+import type { Item, Clinic, Report, CommunityPost, MockComment } from './types';
 
 export const items: Item[] = [
   { id: 'wegovy', displayNameKo: '위고비', color: '#2E7D32' },
@@ -817,8 +817,61 @@ export const communityPosts: CommunityPost[] = [
         category: '정보공유',
         content: '아침에 맞는 게 좋다는 사람도 있고, 저녁에 맞는 게 부작용 관리에 좋다는 사람도 있어서 헷갈리네요. 요일은 보통 주말로 잡으시나요? 다들 본인만의 루틴이 있으시면 공유해주세요!'
     }
-]
+];
+
+export const mockComments: MockComment[] = [
+    // Comments for post-1 (12 comments)
+    { id: 'comment-1-1', postId: 'post-1', authorName: '전문가', content: '단백질 쉐이크나 닭가슴살 추천합니다. 포만감이 오래가요.', createdAt: new Date(Date.now() - 86400000 * 1 + 3600000 * 1) },
+    { id: 'comment-1-2', postId: 'post-1', authorName: '경험자', content: '저는 삶은 계란을 간식으로 먹으니 좋더라고요.', createdAt: new Date(Date.now() - 86400000 * 1 + 3600000 * 2) },
+    { id: 'comment-1-3', postId: 'post-1', authorName: '운동맨', content: '식단도 중요하지만, 가벼운 걷기라도 꼭 병행해주세요!', createdAt: new Date(Date.now() - 86400000 * 1 + 3600000 * 3) },
+    { id: 'comment-1-4', postId: 'post-1', authorName: '다이어터', content: '오, 다들 감사합니다! 참고해서 식단 짜봐야겠어요.', createdAt: new Date(Date.now() - 86400000 * 1 + 3600000 * 4) },
+    { id: 'comment-1-5', postId: 'post-1', authorName: '요리왕', content: '두부면 파스타도 칼로리 낮고 맛있어요.', createdAt: new Date(Date.now() - 86400000 * 1 + 3600000 * 5) },
+    { id: 'comment-1-6', postId: 'post-1', authorName: '새내기', content: '저도 식단 정보 찾고 있었는데 덕분에 알아갑니다!', createdAt: new Date(Date.now() - 86400000 * 1 + 3600000 * 6) },
+    { id: 'comment-1-7', postId: 'post-1', authorName: '유지어터', content: '나중을 생각해서라도 근력 운동을 조금씩 해두시는 걸 추천!', createdAt: new Date(Date.now() - 86400000 * 1 + 3600000 * 7) },
+    { id: 'comment-1-8', postId: 'post-1', authorName: '학생', content: '급식이라 식단 조절이 어려운데 어떡하죠? ㅠㅠ', createdAt: new Date(Date.now() - 86400000 * 1 + 3600000 * 8) },
+    { id: 'comment-1-9', postId: 'post-1', authorName: '프로먹방러', content: '저는 그냥 먹고 싶은 거 양을 줄여서 먹어요. 스트레스 받는 게 더 안 좋대서...', createdAt: new Date(Date.now() - 86400000 * 1 + 3600000 * 9) },
+    { id: 'comment-1-10', postId: 'post-1', authorName: '의사A', content: '의료 전문가와 상담하여 본인에게 맞는 식단을 구성하는 것이 가장 좋습니다.', createdAt: new Date(Date.now() - 86400000 * 1 + 3600000 * 10) },
+    { id: 'comment-1-11', postId: 'post-1', authorName: '질문자', content: '혹시 피해야 할 음식이 따로 있을까요? 기름진 거 빼고요.', createdAt: new Date(Date.now() - 86400000 * 1 + 3600000 * 11) },
+    { id: 'comment-1-12', postId: 'post-1', authorName: '답변왕', content: '저는 탄산음료부터 끊으니까 속도 편해지고 살도 더 잘 빠지는 기분이에요.', createdAt: new Date(Date.now() - 86400000 * 1 + 3600000 * 12) },
+
+    // Comments for post-2 (20 comments)
+    { id: 'comment-2-1', postId: 'post-2', authorName: '선배', content: '저는 그래서 자기 전에 맞아요. 자는 동안 지나가라고..', createdAt: new Date(Date.now() - 86400000 * 3 + 3600000 * 1) },
+    { id: 'comment-2-2', postId: 'post-2', authorName: '동지', content: '와 저만 그런 게 아니었군요 ㅠㅠ', createdAt: new Date(Date.now() - 86400000 * 3 + 3600000 * 2) },
+    { id: 'comment-2-3', postId: 'post-2', authorName: '약사', content: '매실액기스가 도움이 될 수 있습니다. 그래도 심하면 의사와 상담하세요.', createdAt: new Date(Date.now() - 86400000 * 3 + 3600000 * 3) },
+    { id: 'comment-2-4', postId: 'post-2', authorName: '초보사용자', content: '매실액기스 한번 먹어봐야겠네요. 감사합니다!', createdAt: new Date(Date.now() - 86400000 * 3 + 3600000 * 4) },
+    ...Array.from({ length: 16 }, (_, i) => ({
+      id: `comment-2-${i + 5}`,
+      postId: 'post-2',
+      authorName: `유저${i + 1}`,
+      content: `저도 비슷한 경험이 있어요. ${i+1}주차 되니까 좀 나아지더라고요.`,
+      createdAt: new Date(Date.now() - 86400000 * 3 + 3600000 * (i + 5))
+    })),
+
+    // Comments for post-3 (7 comments)
+    { id: 'comment-3-1', postId: 'post-3', authorName: '트레이너', content: '둘 다 중요하지만, 초반에는 근력 운동으로 대사량을 올려두는 게 장기적으로 유리합니다.', createdAt: new Date(Date.now() - 86400000 * 5 + 3600000 * 1) },
+    { id: 'comment-3-2', postId: 'post-3', authorName: '런닝맨', content: '저는 그냥 매일 5km씩 뛰는데 살 잘 빠져요!', createdAt: new Date(Date.now() - 86400000 * 5 + 3600000 * 2) },
+    { id: 'comment-3-3', postId: 'post-3', authorName: '헬린이', content: '아 근력이군요! 감사합니다. PT를 끊어야 하나...', createdAt: new Date(Date.now() - 86400000 * 5 + 3600000 * 3) },
+    { id: 'comment-3-4', postId: 'post-3', authorName: '정보통', content: '유튜브에 홈트 영상 좋은 거 많아요!', createdAt: new Date(Date.now() - 86400000 * 5 + 3600000 * 4) },
+    { id: 'comment-3-5', postId: 'post-3', authorName: '의사B', content: '무릎에 무리가 가지 않는 선에서 꾸준히 하는 게 제일 중요합니다.', createdAt: new Date(Date.now() - 86400000 * 5 + 3600000 * 5) },
+    { id: 'comment-3-6', postId: 'post-3', authorName: '다이어터', content: '저는 필라테스 하는데 라인 잡는 데 좋은 것 같아요.', createdAt: new Date(Date.now() - 86400000 * 5 + 3600000 * 6) },
+    { id: 'comment-3-7', postId: 'post-3', authorName: '수영인', content: '수영이 관절에 무리 안 가고 최고입니다.', createdAt: new Date(Date.now() - 86400000 * 5 + 3600000 * 7) },
+
+    // Comments for post-4 (15 comments)
+    { id: 'comment-4-1', postId: 'post-4', authorName: '올빼미', content: '금요일 저녁에 맞고 주말 동안 적응하는 편입니다.', createdAt: new Date(Date.now() - 86400000 * 7 + 3600000 * 1) },
+    { id: 'comment-4-2', postId: 'post-4', authorName: '아침형인간', content: '저는 월요일 아침에 맞고 한 주를 시작해요!', createdAt: new Date(Date.now() - 86400000 * 7 + 3600000 * 2) },
+    { id: 'comment-4-3', postId: 'post-4', authorName: '궁금해요', content: '부작용 때문에 고민이었는데, 저녁에 맞는 게 좋겠네요.', createdAt: new Date(Date.now() - 86400000 * 7 + 3600000 * 3) },
+    { id: 'comment-4-4', postId: 'post-4', authorName: '메모광', content: '요일이랑 시간대별로 컨디션 기록해보고 본인한테 맞는 시간 찾는 걸 추천해요.', createdAt: new Date(Date.now() - 86400000 * 7 + 3600000 * 4) },
+     ...Array.from({ length: 11 }, (_, i) => ({
+      id: `comment-4-${i + 5}`,
+      postId: 'post-4',
+      authorName: `유저B-${i + 1}`,
+      content: `저는 그냥 생각날 때 맞아요. 크게 상관 없는듯?`,
+      createdAt: new Date(Date.now() - 86400000 * 7 + 3600000 * (i + 5))
+    })),
+];
     
 
     
+
+
 

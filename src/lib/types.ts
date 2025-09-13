@@ -1,3 +1,4 @@
+
 export type ItemId = 'wegovy' | 'mounjaro';
 
 export type Availability = 'available' | 'unavailable' | 'unknown';
@@ -62,4 +63,13 @@ export interface CommunityPost {
     commentsCount: number;
     category: string;
     content: string;
+}
+
+export interface MockComment {
+    id: string;
+    postId: string;
+    authorName: string;
+    authorPhotoURL?: string;
+    content: string;
+    createdAt: Date;
 }
