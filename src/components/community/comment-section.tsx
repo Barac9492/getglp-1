@@ -36,14 +36,43 @@ const toComment = (mock: MockComment): Comment => ({
     createdAt: Timestamp.fromDate(mock.createdAt),
 });
 
+const CommentCard = ({ comment }: { comment: Comment }) => {
+  const [formattedDate, setFormattedDate] = React.useState('');
+
+  React.useEffect(() => {
+    if (comment.createdAt) {
+      setFormattedDate(comment.createdAt.toDate().toLocaleDateString('ko-KR'));
+    }
+  }, [comment.createdAt]);
+
+  return (
+      <Card className="bg-muted/50">
+        <CardContent className="p-4 flex gap-4">
+          <Avatar className="h-8 w-8">
+            <AvatarImage src={comment.authorPhotoURL} />
+            <AvatarFallback>{comment.authorName.charAt(0)}</AvatarFallback>
+          </Avatar>
+          <div className="flex-1">
+            <div className="flex items-center justify-between">
+              <p className="font-semibold text-sm">{comment.authorName}</p>
+              <p className="text-xs text-muted-foreground">
+                {formattedDate || '...'}
+              </p>
+            </div>
+            <p className="text-sm mt-1">{comment.content}</p>
+          </div>
+        </CardContent>
+      </Card>
+  )
+}
 
 export default function CommentSection({ postId }: { postId: string }) {
   const [user, setUser] = React.useState<User | null>(null);
   
-  const initialComments = mockComments
+  const initialComments = React.useMemo(() => mockComments
     .filter(c => c.postId === postId)
     .sort((a,b) => b.createdAt.getTime() - a.createdAt.getTime())
-    .map(toComment);
+    .map(toComment), [postId]);
 
   const [comments, setComments] = React.useState<Comment[]>(initialComments);
   const [loadingComments, setLoadingComments] = React.useState(true);
@@ -70,18 +99,6 @@ export default function CommentSection({ postId }: { postId: string }) {
         ...doc.data(),
       } as Comment));
       
-      const allComments = [...initialComments];
-      const fetchedIds = new Set(fetchedComments.map(f => f.id));
-
-      // Add initial mock comments if they are not duplicates of fetched ones
-      initialComments.forEach(initial => {
-          if (!fetchedIds.has(initial.id)) {
-              // This is a bit of a hack, as we can't really know if a fetched comment
-              // is the "same" as a mock one without a shared ID.
-              // For now, we combine them, prioritizing fetched ones.
-          }
-      });
-      
       // A simple merge: show real-time comments first, then the initial mock data.
       // A more sophisticated merge would de-duplicate based on content/author/timestamp.
       const combined = [...fetchedComments, ...initialComments.filter(
@@ -91,6 +108,10 @@ export default function CommentSection({ postId }: { postId: string }) {
 
 
       setComments(combined);
+      setLoadingComments(false);
+    }, (error) => {
+      console.error("Error fetching comments:", error);
+      setComments(initialComments);
       setLoadingComments(false);
     });
 
@@ -170,23 +191,7 @@ export default function CommentSection({ postId }: { postId: string }) {
             </div>
         ) : comments.length > 0 ? (
           comments.map((comment) => (
-            <Card key={comment.id} className="bg-muted/50">
-              <CardContent className="p-4 flex gap-4">
-                <Avatar className="h-8 w-8">
-                  <AvatarImage src={comment.authorPhotoURL} />
-                  <AvatarFallback>{comment.authorName.charAt(0)}</AvatarFallback>
-                </Avatar>
-                <div className="flex-1">
-                  <div className="flex items-center justify-between">
-                    <p className="font-semibold text-sm">{comment.authorName}</p>
-                    <p className="text-xs text-muted-foreground">
-                      {comment.createdAt?.toDate().toLocaleDateString('ko-KR')}
-                    </p>
-                  </div>
-                  <p className="text-sm mt-1">{comment.content}</p>
-                </div>
-              </CardContent>
-            </Card>
+            <CommentCard key={comment.id} comment={comment} />
           ))
         ) : (
           <p className="text-sm text-muted-foreground text-center py-4">

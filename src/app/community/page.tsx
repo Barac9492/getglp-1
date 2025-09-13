@@ -1,23 +1,65 @@
+
+'use client';
+
+import * as React from 'react';
 import Header from '@/components/layout/header';
 import Footer from '@/components/layout/footer';
 import { communityPosts } from '@/lib/mock-data';
 import type { Metadata } from 'next';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardCardHeader, CardFooter, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { ThumbsUp, MessageSquare, Clock, User, ShieldAlert, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
 
-export const metadata: Metadata = {
-  title: '커뮤니티',
-  description: '위고비, 마운자로 사용자들이 경험과 팁을 나누는 공간입니다. 식단, 운동, 부작용 관리 등 다양한 주제에 대해 이야기해보세요.',
-  alternates: {
-    canonical: '/community',
-  },
-};
+// Moving metadata to head.tsx or layout.tsx is better for client components,
+// but for simplicity, we'll manage the title via useEffect.
+
+const CommunityPostCard = ({ post }: { post: typeof communityPosts[0] }) => {
+    const [formattedDate, setFormattedDate] = React.useState('');
+
+    React.useEffect(() => {
+        setFormattedDate(new Date(post.createdAt).toLocaleDateString('ko-KR'));
+    }, [post.createdAt]);
+
+    return (
+        <Card>
+            <CardHeader>
+                <Badge variant="secondary" className="w-fit">{post.category}</Badge>
+                <CardTitle className="text-lg pt-2">{post.title}</CardTitle>
+                 <div className="flex items-center gap-4 text-sm text-muted-foreground pt-1">
+                    <span className="flex items-center gap-1"><User className="h-4 w-4" />{post.author}</span>
+                    <span className="flex items-center gap-1">
+                        <Clock className="h-4 w-4" />
+                        {formattedDate || '...'}
+                    </span>
+                </div>
+            </CardHeader>
+            <CardContent>
+               <p className="text-muted-foreground line-clamp-2">{post.content}</p>
+            </CardContent>
+            <CardFooter className="flex justify-between items-center">
+                <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                    <span className="flex items-center gap-1"><ThumbsUp className="h-4 w-4" /> {post.votes}</span>
+                    <span className="flex items-center gap-1"><MessageSquare className="h-4 w-4" /> {post.commentsCount}</span>
+                </div>
+                 <Link href={`/community/${post.id}`} passHref>
+                    <Button variant="secondary" size="sm">
+                        더 보기 <ArrowRight className="ml-1 h-4 w-4" />
+                    </Button>
+                </Link>
+            </CardFooter>
+        </Card>
+    )
+}
+
 
 export default function CommunityPage() {
+  React.useEffect(() => {
+    document.title = '커뮤니티 | GLP 트래커';
+  }, []);
+
   const sortedPosts = communityPosts.sort((a,b) => b._date.getTime() - a._date.getTime());
 
   return (
@@ -41,30 +83,7 @@ export default function CommunityPage() {
             
             <div className="space-y-4">
                 {sortedPosts.map(post => (
-                    <Card key={post.id}>
-                        <CardHeader>
-                            <Badge variant="secondary" className="w-fit">{post.category}</Badge>
-                            <CardTitle className="text-lg pt-2">{post.title}</CardTitle>
-                             <div className="flex items-center gap-4 text-sm text-muted-foreground pt-1">
-                                <span className="flex items-center gap-1"><User className="h-4 w-4" />{post.author}</span>
-                                <span className="flex items-center gap-1"><Clock className="h-4 w-4" />{new Date(post.createdAt).toLocaleDateString('ko-KR')}</span>
-                            </div>
-                        </CardHeader>
-                        <CardContent>
-                           <p className="text-muted-foreground line-clamp-2">{post.content}</p>
-                        </CardContent>
-                        <CardFooter className="flex justify-between items-center">
-                            <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                                <span className="flex items-center gap-1"><ThumbsUp className="h-4 w-4" /> {post.votes}</span>
-                                <span className="flex items-center gap-1"><MessageSquare className="h-4 w-4" /> {post.commentsCount}</span>
-                            </div>
-                             <Link href={`/community/${post.id}`} passHref>
-                                <Button variant="secondary" size="sm">
-                                    더 보기 <ArrowRight className="ml-1 h-4 w-4" />
-                                </Button>
-                            </Link>
-                        </CardFooter>
-                    </Card>
+                    <CommunityPostCard key={post.id} post={post} />
                 ))}
             </div>
 

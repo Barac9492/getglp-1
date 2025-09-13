@@ -1,12 +1,14 @@
 
+'use client';
+
+import * as React from 'react';
 import { communityPosts } from '@/lib/mock-data';
 import { notFound } from 'next/navigation';
-import type { Metadata } from 'next';
 import Header from '@/components/layout/header';
 import Footer from '@/components/layout/footer';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ThumbsUp, MessageSquare, Clock, User, ArrowLeft, AlertTriangle } from 'lucide-react';
+import { ThumbsUp, MessageSquare, Clock, User, ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 import CommentSection from '@/components/community/comment-section';
 
@@ -14,26 +16,26 @@ type Props = {
   params: { id: string }
 }
 
-export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const post = communityPosts.find(p => p.id === params.id);
-
-  if (!post) {
-    return {
-      title: 'Post Not Found',
-    }
-  }
-
-  return {
-    title: post.title,
-    description: post.content.substring(0, 150),
-     alternates: {
-      canonical: `/community/${params.id}`,
-    },
-  }
-}
+// We can't generate Metadata in a client component, but we can have a title.
+// This is a trade-off for fixing the hydration error. A more complex solution
+// would involve a separate server component for metadata.
 
 export default function CommunityPostPage({ params }: Props) {
   const post = communityPosts.find(p => p.id === params.id);
+  const [formattedDate, setFormattedDate] = React.useState('');
+
+  React.useEffect(() => {
+    if (post) {
+      document.title = `${post.title} | GLP 트래커`;
+      setFormattedDate(new Date(post.createdAt).toLocaleDateString('ko-KR'));
+    }
+  }, [post]);
+
+  if (!post) {
+    // This will be caught by the notFound() call in a real app,
+    // but useEffect needs to handle the post being null initially.
+    return null;
+  }
 
   if (!post) {
     notFound();
@@ -58,7 +60,10 @@ export default function CommunityPostPage({ params }: Props) {
                     <CardTitle className="text-2xl font-headline">{post.title}</CardTitle>
                     <div className="flex items-center gap-4 text-sm text-muted-foreground pt-2">
                         <span className="flex items-center gap-1"><User className="h-4 w-4" />{post.author}</span>
-                        <span className="flex items-center gap-1"><Clock className="h-4 w-4" />{new Date(post.createdAt).toLocaleDateString('ko-KR')}</span>
+                        <span className="flex items-center gap-1">
+                          <Clock className="h-4 w-4" />
+                          {formattedDate || 'Loading...'}
+                        </span>
                     </div>
                 </CardHeader>
                 <CardContent className="prose prose-sm max-w-none text-foreground/90 leading-relaxed">
@@ -82,10 +87,4 @@ export default function CommunityPostPage({ params }: Props) {
       <Footer />
     </div>
   );
-}
-
-export async function generateStaticParams() {
-  return communityPosts.map(post => ({
-    id: post.id,
-  }));
 }
