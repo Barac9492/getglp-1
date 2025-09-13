@@ -13,11 +13,11 @@ import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Slider } from '@/components/ui/slider';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Filters } from '@/app/page';
+import type { Filters } from '@/app/map/page';
 
 interface FilterPanelProps {
-  filters: Omit<Filters, 'product'>;
-  setFilters: React.Dispatch<React.SetStateAction<Omit<Filters, 'product'>>>;
+  filters: Filters;
+  setFilters: React.Dispatch<React.SetStateAction<Filters>>;
   product: 'wegovy' | 'mounjaro';
   minPrice: number;
   maxPrice: number;
