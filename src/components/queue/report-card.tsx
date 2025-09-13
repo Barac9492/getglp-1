@@ -3,7 +3,7 @@
 import * as React from 'react';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { ThumbsUp, ThumbsDown, Flag, User, Clock, Phone, CheckCircle, HelpCircle } from 'lucide-react';
+import { ThumbsUp, ThumbsDown, Flag, User, Clock, Phone, CheckCircle, HelpCircle, MessageSquareQuote } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import type { Report } from '@/lib/types';
 import { items } from '@/lib/mock-data';
@@ -64,7 +64,7 @@ export default function ReportCard({ report }: ReportCardProps) {
                     </Badge>
                 </div>
             </CardHeader>
-            <CardContent>
+            <CardContent className="space-y-4">
                 <div className="flex items-center gap-4">
                     <Badge variant={report.availability === 'available' ? 'default' : 'destructive'} style={report.availability === 'available' ? {backgroundColor: item?.color} : {}}>
                         {report.availability === 'available' ? '재고 있음' : '재고 없음'}
@@ -74,14 +74,19 @@ export default function ReportCard({ report }: ReportCardProps) {
                     )}
                 </div>
                 {report.note && (
-                    <blockquote className="mt-4 border-l-2 pl-4 italic text-muted-foreground">"{report.note}"</blockquote>
+                     <div className="p-3 bg-muted/70 rounded-md border-l-4 border-primary/50">
+                        <div className="flex items-start gap-3">
+                            <MessageSquareQuote className="h-5 w-5 text-primary/80 flex-shrink-0 mt-0.5" />
+                            <p className="text-sm text-foreground/80 italic">"{report.note}"</p>
+                        </div>
+                    </div>
                 )}
-                <div className="text-xs text-muted-foreground mt-4 flex items-center gap-4">
+                <div className="text-xs text-muted-foreground flex items-center gap-4 pt-2">
                     <span className="flex items-center gap-1"><User className="h-3 w-3"/>제보자: {report.reportedBy}</span>
                     <span className="flex items-center gap-1"><Phone className="h-3 w-3"/>출처: {report.sourceType}</span>
                 </div>
             </CardContent>
-            <CardFooter className="flex justify-between items-center">
+            <CardFooter className="flex justify-between items-center bg-muted/50 py-3">
                 <div className="flex items-center gap-2">
                     <Button 
                         variant="outline" 

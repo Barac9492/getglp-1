@@ -46,7 +46,7 @@ const CommentCard = ({ comment }: { comment: Comment }) => {
   }, [comment.createdAt]);
 
   return (
-      <Card className="bg-muted/50">
+      <Card className="bg-transparent shadow-none border-0 border-b rounded-none last:border-b-0">
         <CardContent className="p-4 flex gap-4">
           <Avatar className="h-8 w-8">
             <AvatarImage src={comment.authorPhotoURL} />
@@ -59,7 +59,7 @@ const CommentCard = ({ comment }: { comment: Comment }) => {
                 {formattedDate || '...'}
               </p>
             </div>
-            <p className="text-sm mt-1">{comment.content}</p>
+            <p className="text-sm mt-1 text-foreground/90">{comment.content}</p>
           </div>
         </CardContent>
       </Card>
@@ -87,6 +87,7 @@ export default function CommentSection({ postId }: { postId: string }) {
   }, []);
 
   React.useEffect(() => {
+    setLoadingComments(true);
     const q = query(
       collection(db, 'comments'),
       where('postId', '==', postId),
@@ -99,10 +100,7 @@ export default function CommentSection({ postId }: { postId: string }) {
         ...doc.data(),
       } as Comment));
       
-      // A simple merge: show real-time comments first, then the initial mock data.
-      // A more sophisticated merge would de-duplicate based on content/author/timestamp.
       const combined = [...fetchedComments, ...initialComments.filter(
-          // A very basic de-duplication
           m => !fetchedComments.some(f => f.content === m.content && f.authorName === m.authorName)
       )].sort((a,b) => b.createdAt.toMillis() - a.createdAt.toMillis());
 
@@ -130,7 +128,6 @@ export default function CommentSection({ postId }: { postId: string }) {
 
     try {
         const token = await user.getIdToken();
-        // We are not using the returned result of the action, but using fetch to pass the token
         const response = await fetch('/api/comment', {
             method: 'POST',
             headers: {
@@ -162,7 +159,9 @@ export default function CommentSection({ postId }: { postId: string }) {
 
   return (
     <div className="space-y-6">
-      <h3 className="text-lg font-semibold">댓글 ({comments.length})</h3>
+       <div className="border-b pb-2">
+            <h3 className="text-lg font-semibold">댓글 ({comments.length})</h3>
+       </div>
       
       {user ? (
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-2">
@@ -183,9 +182,9 @@ export default function CommentSection({ postId }: { postId: string }) {
         </Alert>
       )}
 
-      <div className="space-y-4">
+      <Card className="p-0">
         {loadingComments && comments.length === 0 ? (
-            <div className="flex items-center space-x-4">
+            <div className="flex items-center space-x-4 p-4">
                 <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
                 <p className="text-muted-foreground">댓글을 불러오는 중...</p>
             </div>
@@ -194,11 +193,11 @@ export default function CommentSection({ postId }: { postId: string }) {
             <CommentCard key={comment.id} comment={comment} />
           ))
         ) : (
-          <p className="text-sm text-muted-foreground text-center py-4">
+          <p className="text-sm text-muted-foreground text-center p-8">
             아직 댓글이 없습니다. 첫 댓글을 남겨보세요!
           </p>
         )}
-      </div>
+      </Card>
     </div>
   );
 }
