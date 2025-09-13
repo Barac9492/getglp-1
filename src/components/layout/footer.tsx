@@ -9,7 +9,7 @@ export default function Footer() {
             <p className="font-bold text-destructive-foreground text-sm">
               “본 서비스는 의료적 자문이 아니며, 약물 판매와 무관합니다. 모든 처방은 의료 전문가와 상담 후 결정하세요.”
             </p>
-             <p className="font-semibold text-destructive-foreground/80 mt-2">
+             <p className="font-bold text-destructive-foreground mt-2 text-sm">
             "실제 취급 여부·가격·재고는 수시로 변경될 수 있으므로 방문 전 반드시 해당 기관에 직접 확인하시기 바랍니다."
             </p>
         </div>
