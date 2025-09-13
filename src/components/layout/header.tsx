@@ -35,8 +35,12 @@ const handleSignIn = async () => {
     const provider = new GoogleAuthProvider();
     try {
         await signInWithPopup(auth, provider);
-    } catch (error) {
-        console.error("Error signing in with Google", error);
+    } catch (error: any) {
+        // This error is commonly triggered when the user closes the popup.
+        // We can safely ignore it.
+        if (error.code !== 'auth/cancelled-popup-request') {
+            console.error("Error signing in with Google", error);
+        }
     }
 };
 
@@ -119,7 +123,7 @@ export default function Header() {
 
                 <div className="flex flex-1 items-center justify-end space-x-4">
                      <Link href="/report" passHref>
-                        <Button>
+                        <Button variant="outline" size="sm" className="hidden md:inline-flex">
                           <Edit className="mr-2 h-4 w-4" />
                           정보 제보하기
                         </Button>
