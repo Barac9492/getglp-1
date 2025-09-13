@@ -36,9 +36,9 @@ const handleSignIn = async () => {
     try {
         await signInWithPopup(auth, provider);
     } catch (error: any) {
-        // This error is commonly triggered when the user closes the popup.
-        // We can safely ignore it.
-        if (error.code !== 'auth/cancelled-popup-request') {
+        // These errors are commonly triggered when the user closes the popup.
+        // We can safely ignore them.
+        if (error.code !== 'auth/cancelled-popup-request' && error.code !== 'auth/popup-closed-by-user') {
             console.error("Error signing in with Google", error);
         }
     }
