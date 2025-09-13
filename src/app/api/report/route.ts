@@ -1,19 +1,13 @@
 
 import { saveReport } from '@/app/actions/report';
 import { NextRequest, NextResponse } from 'next/server';
-import { headers } from 'next/headers';
 
 export async function POST(req: NextRequest) {
   try {
-    const authorization = headers().get('Authorization');
-    if (!authorization?.startsWith('Bearer ')) {
-        return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
-    }
-    const idToken = authorization.split('Bearer ')[1];
-
     const data = await req.json();
     
-    const result = await saveReport(data, idToken);
+    // The 'saveReport' action now uses getAuthenticatedUser which reads the header
+    const result = await saveReport(data);
 
     if (result.success) {
       return NextResponse.json({ success: true });

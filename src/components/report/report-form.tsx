@@ -33,6 +33,7 @@ import React from 'react';
 
 const reportFormSchema = z.object({
   clinicId: z.string({ required_error: '클리닉을 선택해주세요.' }),
+  clinicName: z.string(), // Add clinicName
   item: z.enum(['wegovy', 'mounjaro'], { required_error: '제품을 선택해주세요.' }),
   availability: z.enum(['available', 'unavailable'], { required_error: '가용성을 선택해주세요.' }),
   priceKRW: z.coerce.number().optional(),
@@ -52,6 +53,7 @@ export default function ReportForm() {
         resolver: zodResolver(reportFormSchema),
         defaultValues: {
             clinicId: searchParams.get('clinicId') || undefined,
+            clinicName: clinics.find(c => c.id === searchParams.get('clinicId'))?.name || '',
             note: '',
             priceKRW: undefined
         }
@@ -61,6 +63,7 @@ export default function ReportForm() {
         const clinicId = searchParams.get('clinicId');
         if (clinicId) {
             form.setValue('clinicId', clinicId);
+            form.setValue('clinicName', clinics.find(c => c.id === clinicId)?.name || '');
         }
     }, [searchParams, form]);
 
@@ -116,7 +119,13 @@ export default function ReportForm() {
           render={({ field }) => (
             <FormItem>
               <FormLabel>클리닉 선택</FormLabel>
-              <Select onValueChange={field.onChange} value={field.value}>
+              <Select 
+                onValueChange={(value) => {
+                    field.onChange(value);
+                    form.setValue('clinicName', clinics.find(c => c.id === value)?.name || '');
+                }} 
+                value={field.value}
+              >
                 <FormControl>
                   <SelectTrigger>
                     <SelectValue placeholder="검색하거나 목록에서 클리닉을 선택하세요" />

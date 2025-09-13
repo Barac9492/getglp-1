@@ -13,9 +13,11 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Map, Syringe, User, LogOut, Settings, HelpCircle, List, Edit, MessageSquare } from 'lucide-react';
+import { Map, Syringe, User, LogOut, Settings, HelpCircle, List, Edit, MessageSquare, Shield } from 'lucide-react';
 import { auth } from '@/lib/firebase';
 import { GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged, User as FirebaseUser } from 'firebase/auth';
+import { getUserRole } from '@/app/actions/auth';
+
 
 const Logo = () => (
     <Link href="/" className="flex items-center gap-2 font-bold text-lg text-primary">
@@ -36,8 +38,6 @@ const handleSignIn = async () => {
     try {
         await signInWithPopup(auth, provider);
     } catch (error: any) {
-        // These errors are commonly triggered when the user closes the popup.
-        // We can safely ignore them.
         if (error.code !== 'auth/cancelled-popup-request' && error.code !== 'auth/popup-closed-by-user') {
             console.error("Error signing in with Google", error);
         }
@@ -52,8 +52,27 @@ const handleSignOut = async () => {
     }
 };
 
+type UserRole = 'user' | 'admin' | 'superadmin';
 
 const UserNav: React.FC<{ user: FirebaseUser | null }> = ({ user }) => {
+    const [role, setRole] = React.useState<UserRole>('user');
+
+    React.useEffect(() => {
+        const fetchRole = async () => {
+            if (user) {
+                const idToken = await user.getIdToken();
+                const response = await fetch('/api/auth/role', {
+                    headers: { 'Authorization': `Bearer ${idToken}` }
+                });
+                if(response.ok) {
+                    const data = await response.json();
+                    setRole(data.role);
+                }
+            }
+        }
+        fetchRole();
+    }, [user]);
+
   if (!user) {
     return (
       <Button onClick={handleSignIn}>로그인</Button>
@@ -80,6 +99,14 @@ const UserNav: React.FC<{ user: FirebaseUser | null }> = ({ user }) => {
           </div>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
+        {(role === 'admin' || role === 'superadmin') && (
+            <Link href="/admin">
+                <DropdownMenuItem>
+                    <Shield className="mr-2 h-4 w-4" />
+                    <span>관리자 페이지</span>
+                </DropdownMenuItem>
+            </Link>
+        )}
         <DropdownMenuItem>
           <User className="mr-2 h-4 w-4" />
           <span>내 제보</span>

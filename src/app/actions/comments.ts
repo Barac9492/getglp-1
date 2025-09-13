@@ -1,32 +1,13 @@
 
 'use server';
 
-import { db } from '@/lib/firebase';
+import { db } from '@/lib/firebase-admin';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import { revalidatePath } from 'next/cache';
-import { auth as adminAuth } from 'firebase-admin';
-import { getApp, getApps, initializeApp } from 'firebase-admin/app';
-import { DecodedIdToken } from 'firebase-admin/auth';
+import { getAuthenticatedUser } from './auth';
 
-// Initialize Firebase Admin SDK if not already initialized
-if (getApps().length === 0) {
-  initializeApp();
-}
-
-async function getAuthenticatedUser(idToken: string): Promise<DecodedIdToken | null> {
-  if (idToken) {
-    try {
-      return await adminAuth().verifyIdToken(idToken);
-    } catch (error) {
-      console.error('Error verifying token:', error);
-      return null;
-    }
-  }
-  return null;
-}
-
-export async function saveComment(postId: string, content: string, idToken: string) {
-  const user = await getAuthenticatedUser(idToken);
+export async function saveComment(postId: string, content: string) {
+  const user = await getAuthenticatedUser();
 
   if (!user) {
     return { success: false, error: 'Authentication required.' };

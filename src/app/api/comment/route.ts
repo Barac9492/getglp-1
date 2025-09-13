@@ -5,15 +5,10 @@ import { headers } from 'next/headers';
 
 export async function POST(req: NextRequest) {
   try {
-    const authorization = headers().get('Authorization');
-    if (!authorization?.startsWith('Bearer ')) {
-        return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
-    }
-    const idToken = authorization.split('Bearer ')[1];
-    
     const { postId, content } = await req.json();
     
-    const result = await saveComment(postId, content, idToken);
+    // The 'saveComment' action now uses getAuthenticatedUser which reads the header
+    const result = await saveComment(postId, content);
 
     if (result.success) {
       return NextResponse.json({ success: true });
