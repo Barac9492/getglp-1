@@ -1,21 +1,16 @@
 
+'use client';
+
 import Header from '@/components/layout/header';
 import Footer from '@/components/layout/footer';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import ReportForm from '@/components/report/report-form';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { ShieldAlert } from 'lucide-react';
-import type { Metadata } from 'next';
+import React from 'react';
+import { Suspense } from 'react';
 
-export const metadata: Metadata = {
-  title: '가용성 정보 제보하기',
-  description: '위고비, 마운자로 등 GLP-1 의약품의 최신 재고 및 가격 정보를 공유하여 커뮤니티에 기여해주세요. 여러분의 제보가 지도를 만듭니다.',
-  alternates: {
-    canonical: '/report',
-  },
-};
-
-export default function ReportPage() {
+function ReportPageContent() {
   return (
     <div className="flex flex-col min-h-screen">
       <Header />
@@ -46,4 +41,13 @@ export default function ReportPage() {
       <Footer />
     </div>
   );
+}
+
+
+export default function ReportPage() {
+    return (
+        <Suspense fallback={<div>Loading...</div>}>
+            <ReportPageContent />
+        </Suspense>
+    )
 }

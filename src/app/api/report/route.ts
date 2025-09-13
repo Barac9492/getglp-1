@@ -1,12 +1,19 @@
 
 import { saveReport } from '@/app/actions/report';
 import { NextRequest, NextResponse } from 'next/server';
+import { headers } from 'next/headers';
 
 export async function POST(req: NextRequest) {
   try {
+    const authorization = headers().get('Authorization');
+    if (!authorization?.startsWith('Bearer ')) {
+        return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+    }
+    const idToken = authorization.split('Bearer ')[1];
+
     const data = await req.json();
-    // Pass the entire request to the server action so it can extract headers
-    const result = await saveReport(data);
+    
+    const result = await saveReport(data, idToken);
 
     if (result.success) {
       return NextResponse.json({ success: true });

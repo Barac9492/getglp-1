@@ -1,13 +1,19 @@
 
 import { saveComment } from '@/app/actions/comments';
 import { NextRequest, NextResponse } from 'next/server';
+import { headers } from 'next/headers';
 
 export async function POST(req: NextRequest) {
   try {
+    const authorization = headers().get('Authorization');
+    if (!authorization?.startsWith('Bearer ')) {
+        return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+    }
+    const idToken = authorization.split('Bearer ')[1];
+    
     const { postId, content } = await req.json();
     
-    // The server action will extract the user from the authorization header.
-    const result = await saveComment(postId, content);
+    const result = await saveComment(postId, content, idToken);
 
     if (result.success) {
       return NextResponse.json({ success: true });

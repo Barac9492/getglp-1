@@ -28,6 +28,8 @@ import { clinics, items } from '@/lib/mock-data';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
 import { auth } from '@/lib/firebase';
+import { useSearchParams } from 'next/navigation';
+import React from 'react';
 
 const reportFormSchema = z.object({
   clinicId: z.string({ required_error: '클리닉을 선택해주세요.' }),
@@ -44,14 +46,23 @@ export type ReportFormValues = z.infer<typeof reportFormSchema>;
 export default function ReportForm() {
     const { toast } = useToast();
     const router = useRouter();
+    const searchParams = useSearchParams();
 
-  const form = useForm<ReportFormValues>({
-    resolver: zodResolver(reportFormSchema),
-    defaultValues: {
-        note: '',
-        priceKRW: undefined
-    }
-  });
+    const form = useForm<ReportFormValues>({
+        resolver: zodResolver(reportFormSchema),
+        defaultValues: {
+            clinicId: searchParams.get('clinicId') || undefined,
+            note: '',
+            priceKRW: undefined
+        }
+    });
+
+    React.useEffect(() => {
+        const clinicId = searchParams.get('clinicId');
+        if (clinicId) {
+            form.setValue('clinicId', clinicId);
+        }
+    }, [searchParams, form]);
 
   async function onSubmit(data: ReportFormValues) {
     const user = auth.currentUser;
@@ -105,7 +116,7 @@ export default function ReportForm() {
           render={({ field }) => (
             <FormItem>
               <FormLabel>클리닉 선택</FormLabel>
-              <Select onValueChange={field.onChange} defaultValue={field.value}>
+              <Select onValueChange={field.onChange} value={field.value}>
                 <FormControl>
                   <SelectTrigger>
                     <SelectValue placeholder="검색하거나 목록에서 클리닉을 선택하세요" />
@@ -248,7 +259,7 @@ export default function ReportForm() {
         />
 
 
-        <Button type="submit" className="w-full" disabled={!auth.currentUser || form.formState.isSubmitting}>
+        <Button type="submit" className="w-full" disabled={form.formState.isSubmitting}>
             {form.formState.isSubmitting ? '제출 중...' : '제출하기'}
         </Button>
       </form>

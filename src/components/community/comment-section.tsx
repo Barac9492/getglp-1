@@ -11,7 +11,6 @@ import { useToast } from '@/hooks/use-toast';
 import { auth, db } from '@/lib/firebase';
 import { onAuthStateChanged, User } from 'firebase/auth';
 import { collection, query, where, orderBy, onSnapshot, Timestamp } from 'firebase/firestore';
-import { saveComment } from '@/app/actions/comments';
 import { Loader2 } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from '../ui/alert';
 import { mockComments } from '@/lib/mock-data';
@@ -41,7 +40,11 @@ const CommentCard = ({ comment }: { comment: Comment }) => {
 
   React.useEffect(() => {
     if (comment.createdAt) {
-      setFormattedDate(comment.createdAt.toDate().toLocaleDateString('ko-KR'));
+      const date = comment.createdAt.toDate();
+      // Check if it's a valid date
+      if (!isNaN(date.getTime())) {
+        setFormattedDate(date.toLocaleDateString('ko-KR'));
+      }
     }
   }, [comment.createdAt]);
 
@@ -59,7 +62,7 @@ const CommentCard = ({ comment }: { comment: Comment }) => {
                 {formattedDate || '...'}
               </p>
             </div>
-            <p className="text-sm mt-1 text-foreground/90">{comment.content}</p>
+            <p className="text-sm mt-1 text-foreground/90 prose prose-sm max-w-none">{comment.content}</p>
           </div>
         </CardContent>
       </Card>
@@ -102,7 +105,7 @@ export default function CommentSection({ postId }: { postId: string }) {
       
       const combined = [...fetchedComments, ...initialComments.filter(
           m => !fetchedComments.some(f => f.content === m.content && f.authorName === m.authorName)
-      )].sort((a,b) => b.createdAt.toMillis() - a.createdAt.toMillis());
+      )].sort((a,b) => (b.createdAt?.toMillis() ?? 0) - (a.createdAt?.toMillis() ?? 0));
 
 
       setComments(combined);
