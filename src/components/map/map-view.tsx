@@ -24,17 +24,17 @@ export default function MapView({ clinics, filters }: { clinics: Clinic[]; filte
     const { product } = filters;
     const status = clinic.status[product];
     
-    let color = '#6b7280'; // gray (unknown)
-    let borderColor = '#4b5563';
+    let color = 'hsl(var(--muted-foreground))'; // gray (unknown)
+    let borderColor = 'hsl(var(--muted-foreground))';
     let pulse = false;
 
     if (status === 'available') {
-      color = items.find(i => i.id === product)?.color || '#16a34a';
-      borderColor = product === 'wegovy' ? '#15803d' : '#0D47A1';
+      color = 'hsl(var(--primary))';
+      borderColor = 'hsl(var(--primary))';
       pulse = true;
     } else if (status === 'unavailable') {
-      color = '#dc2626'; // red
-      borderColor = '#b91c1c';
+      color = 'hsl(var(--destructive))'; // red
+      borderColor = 'hsl(var(--destructive))';
     }
     
     return { color, borderColor, pulse };
@@ -111,5 +111,3 @@ export default function MapView({ clinics, filters }: { clinics: Clinic[]; filte
     </div>
   );
 }
-
-    

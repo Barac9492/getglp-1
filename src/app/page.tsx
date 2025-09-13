@@ -31,8 +31,9 @@ export default function LandingPage() {
                 />
             )}
           <div className="container mx-auto text-center relative">
+            <Badge variant="outline" className="mb-4 text-sm font-semibold">GLP-1 재고·가격 현황을 알려주는 크라우드소싱 지도</Badge>
             <h1 className="text-4xl md:text-5xl font-bold font-headline mb-4 text-primary">
-              GLP-1 재고, 이제 찾아다니지 마세요.
+              위고비·마운자로, 이제 찾아다니지 마세요.
             </h1>
             <p className="text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto">
               서울, 분당, 동탄 지역의 위고비·마운자로 재고 현황과 가격 정보를 사용자들이 직접 공유하는 실시간 지도로 확인하고, 커뮤니티에서 경험을 나누세요.

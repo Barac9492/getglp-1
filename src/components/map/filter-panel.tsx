@@ -53,7 +53,7 @@ const regions = [
 
 const updateOptions = [
     { value: 'all', label: '전체' },
-    { value: '24h', label: '지난 24시간' },
+    { value: '24h', label: '오늘 업데이트' },
     { value: '7d', label: '지난 7일' },
     { value: '30d', label: '지난 30일' },
 ];
