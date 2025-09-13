@@ -839,13 +839,22 @@ export const mockComments: MockComment[] = [
     { id: 'comment-2-2', postId: 'post-2', authorName: '동지', content: '와 저만 그런 게 아니었군요 ㅠㅠ', createdAt: new Date(Date.now() - 86400000 * 3 + 3600000 * 2) },
     { id: 'comment-2-3', postId: 'post-2', authorName: '약사', content: '매실액기스가 도움이 될 수 있습니다. 그래도 심하면 의사와 상담하세요.', createdAt: new Date(Date.now() - 86400000 * 3 + 3600000 * 3) },
     { id: 'comment-2-4', postId: 'post-2', authorName: '초보사용자', content: '매실액기스 한번 먹어봐야겠네요. 감사합니다!', createdAt: new Date(Date.now() - 86400000 * 3 + 3600000 * 4) },
-    ...Array.from({ length: 16 }, (_, i) => ({
-      id: `comment-2-${i + 5}`,
-      postId: 'post-2',
-      authorName: `유저${i + 1}`,
-      content: `저도 비슷한 경험이 있어요. ${i+1}주차 되니까 좀 나아지더라고요.`,
-      createdAt: new Date(Date.now() - 86400000 * 3 + 3600000 * (i + 5))
-    })),
+    { id: 'comment-2-5', postId: 'post-2', authorName: '유저1', content: '차가운 물을 조금씩 마시는 것도 도움이 돼요.', createdAt: new Date(Date.now() - 86400000 * 3 + 3600000 * 5) },
+    { id: 'comment-2-6', postId: 'post-2', authorName: '유저2', content: '전 2주차부터 괜찮아졌어요. 조금만 힘내세요!', createdAt: new Date(Date.now() - 86400000 * 3 + 3600000 * 6) },
+    { id: 'comment-2-7', postId: 'post-2', authorName: '유저3', content: '기름진 음식은 피하는 게 좋더라고요.', createdAt: new Date(Date.now() - 86400000 * 3 + 3600000 * 7) },
+    { id: 'comment-2-8', postId: 'post-2', authorName: '유저4', content: '병원에 연락해서 상담받아보시는게 어떨까요?', createdAt: new Date(Date.now() - 86400000 * 3 + 3600000 * 8) },
+    { id: 'comment-2-9', postId: 'post-2', authorName: '유저5', content: '저는 껌 씹으니까 좀 낫더라고요.', createdAt: new Date(Date.now() - 86400000 * 3 + 3600000 * 9) },
+    { id: 'comment-2-10', postId: 'post-2', authorName: '유저6', content: '생강차가 진짜 효과 있었어요!', createdAt: new Date(Date.now() - 86400000 * 3 + 3600000 * 10) },
+    { id: 'comment-2-11', postId: 'post-2', authorName: '유저7', content: '시간이 약입니다 ㅠㅠ', createdAt: new Date(Date.now() - 86400000 * 3 + 3600000 * 11) },
+    { id: 'comment-2-12', postId: 'post-2', authorName: '유저8', content: '소화 잘되는 죽 같은 거 드셔보세요.', createdAt: new Date(Date.now() - 86400000 * 3 + 3600000 * 12) },
+    { id: 'comment-2-13', postId: 'post-2', authorName: '유저9', content: '힘내세요! 다들 겪는 과정이래요.', createdAt: new Date(Date.now() - 86400000 * 3 + 3600000 * 13) },
+    { id: 'comment-2-14', postId: 'post-2', authorName: '유저10', content: '용량 올릴 때마다 다시 나타나기도 해요. ㅠㅠ', createdAt: new Date(Date.now() - 86400000 * 3 + 3600000 * 14) },
+    { id: 'comment-2-15', postId: 'post-2', authorName: '유저11', content: '다들 비슷한 경험을 하는군요... 위안이 됩니다.', createdAt: new Date(Date.now() - 86400000 * 3 + 3600000 * 15) },
+    { id: 'comment-2-16', postId: 'post-2', authorName: '유저12', content: '저는 그냥 누워만 있었어요..', createdAt: new Date(Date.now() - 86400000 * 3 + 3600000 * 16) },
+    { id: 'comment-2-17', postId: 'post-2', authorName: '유저13', content: '탄산수 마시면 좀 괜찮던데요?', createdAt: new Date(Date.now() - 86400000 * 3 + 3600000 * 17) },
+    { id: 'comment-2-18', postId: 'post-2', authorName: '유저14', content: '정 힘들면 의사쌤한테 약 처방해달라고 하세요.', createdAt: new Date(Date.now() - 86400000 * 3 + 3600000 * 18) },
+    { id: 'comment-2-19', postId: 'post-2', authorName: '유저15', content: '다들 화이팅입니다!', createdAt: new Date(Date.now() - 86400000 * 3 + 3600000 * 19) },
+    { id: 'comment-2-20', postId: 'post-2', authorName: '초보사용자', content: '조언들 감사합니다! 하나씩 시도해볼게요!', createdAt: new Date(Date.now() - 86400000 * 3 + 3600000 * 20) },
 
     // Comments for post-3 (7 comments)
     { id: 'comment-3-1', postId: 'post-3', authorName: '트레이너', content: '둘 다 중요하지만, 초반에는 근력 운동으로 대사량을 올려두는 게 장기적으로 유리합니다.', createdAt: new Date(Date.now() - 86400000 * 5 + 3600000 * 1) },
@@ -861,17 +870,22 @@ export const mockComments: MockComment[] = [
     { id: 'comment-4-2', postId: 'post-4', authorName: '아침형인간', content: '저는 월요일 아침에 맞고 한 주를 시작해요!', createdAt: new Date(Date.now() - 86400000 * 7 + 3600000 * 2) },
     { id: 'comment-4-3', postId: 'post-4', authorName: '궁금해요', content: '부작용 때문에 고민이었는데, 저녁에 맞는 게 좋겠네요.', createdAt: new Date(Date.now() - 86400000 * 7 + 3600000 * 3) },
     { id: 'comment-4-4', postId: 'post-4', authorName: '메모광', content: '요일이랑 시간대별로 컨디션 기록해보고 본인한테 맞는 시간 찾는 걸 추천해요.', createdAt: new Date(Date.now() - 86400000 * 7 + 3600000 * 4) },
-     ...Array.from({ length: 11 }, (_, i) => ({
-      id: `comment-4-${i + 5}`,
-      postId: 'post-4',
-      authorName: `유저B-${i + 1}`,
-      content: `저는 그냥 생각날 때 맞아요. 크게 상관 없는듯?`,
-      createdAt: new Date(Date.now() - 86400000 * 7 + 3600000 * (i + 5))
-    })),
+    { id: 'comment-4-5', postId: 'post-4', authorName: '유저B-1', content: '저는 그냥 생각날 때 맞아요. 크게 상관 없는듯?', createdAt: new Date(Date.now() - 86400000 * 7 + 3600000 * 5) },
+    { id: 'comment-4-6', postId: 'post-4', authorName: '유저B-2', content: '의사선생님은 아무때나 괜찮다고 하셨어요.', createdAt: new Date(Date.now() - 86400000 * 7 + 3600000 * 6) },
+    { id: 'comment-4-7', postId: 'post-4', authorName: '유저B-3', content: '저녁에 맞고 자는게 국룰 아닌가요? ㅎㅎ', createdAt: new Date(Date.now() - 86400000 * 7 + 3600000 * 7) },
+    { id: 'comment-4-8', postId: 'post-4', authorName: '유저B-4', content: '주말에 약속 없으면 금요일, 있으면 일요일 저녁 추천!', createdAt: new Date(Date.now() - 86400000 * 7 + 3600000 * 8) },
+    { id: 'comment-4-9', postId: 'post-4', authorName: '유저B-5', content: '시간은 상관없고 요일만 잘 지키면 된다고 들었어요.', createdAt: new Date(Date.now() - 86400000 * 7 + 3600000 * 9) },
+    { id: 'comment-4-10', postId: 'post-4', authorName: '유저B-6', content: '저는 주사 맞는 날 운동은 쉬어요.', createdAt: new Date(Date.now() - 86400000 * 7 + 3600000 * 10) },
+    { id: 'comment-4-11', postId: 'post-4', authorName: '유저B-7', content: '아침에 맞으면 하루종일 식욕조절이 잘 돼서 좋은 것 같아요.', createdAt: new Date(Date.now() - 86400000 * 7 + 3600000 * 11) },
+    { id: 'comment-4-12', postId: 'post-4', authorName: '유저B-8', content: '다들 의견이 다르네요. 그냥 자기한테 맞는게 최고인듯!', createdAt: new Date(Date.now() - 86400000 * 7 + 3600000 * 12) },
+    { id: 'comment-4-13', postId: 'post-4', authorName: '유저B-9', content: '알람 맞춰놓고 같은 시간에 맞는게 제일 좋대요.', createdAt: new Date(Date.now() - 86400000 * 7 + 3600000 * 13) },
+    { id: 'comment-4-14', postId: 'post-4', authorName: '유저B-10', content: '이런 꿀팁 공유 너무 좋아요!', createdAt: new Date(Date.now() - 86400000 * 7 + 3600000 * 14) },
+    { id: 'comment-4-15', postId: 'post-4', authorName: '유저B-11', content: '저는 그냥 병원 갔다온 날 바로 맞아요.', createdAt: new Date(Date.now() - 86400000 * 7 + 3600000 * 15) }
 ];
     
 
     
+
 
 
 
