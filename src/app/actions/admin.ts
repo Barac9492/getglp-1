@@ -1,12 +1,15 @@
 
 'use server';
 
-import { auth as adminAuth } from 'firebase-admin';
+import { auth as adminAuth, app as adminApp } from 'firebase-admin';
 import { collection, getDocs, doc, setDoc, deleteDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase-admin';
 import { getAuthenticatedUser, getUserRole } from './auth';
 import { revalidatePath } from 'next/cache';
 import type { User as AuthUser } from 'firebase-admin/auth';
+
+// This ensures firebase-admin is initialized
+import '@/lib/firebase-admin';
 
 export interface UserView extends AuthUser {
     role: 'user' | 'admin' | 'superadmin';
@@ -19,7 +22,7 @@ export async function getAllUsers(): Promise<UserView[]> {
     if (role !== 'admin' && role !== 'superadmin') throw new Error('Unauthorized');
     
     try {
-        const userRecords = await adminAuth().listUsers();
+        const userRecords = await adminAuth(adminApp).listUsers();
         const rolesSnapshot = await getDocs(collection(db, 'roles'));
         const rolesMap = new Map(rolesSnapshot.docs.map(d => [d.id, d.data().role]));
         
@@ -82,7 +85,7 @@ export async function deleteUser(targetUid: string): Promise<{success: boolean, 
             return { success: false, error: 'Cannot delete a superadmin.' };
         }
 
-        await adminAuth().deleteUser(targetUid);
+        await adminAuth(adminApp).deleteUser(targetUid);
         await deleteDoc(doc(db, 'roles', targetUid));
         revalidatePath('/admin');
         return { success: true };
