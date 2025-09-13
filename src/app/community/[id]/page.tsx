@@ -1,6 +1,3 @@
-
-'use client';
-
 import * as React from 'react';
 import { communityPosts } from '@/lib/mock-data';
 import { notFound } from 'next/navigation';
@@ -11,35 +8,38 @@ import { Button } from '@/components/ui/button';
 import { ThumbsUp, MessageSquare, Clock, User, ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 import CommentSection from '@/components/community/comment-section';
+import type { Metadata } from 'next';
 
 type Props = {
   params: { id: string }
 }
 
-// We can't generate Metadata in a client component, but we can have a title.
-// This is a trade-off for fixing the hydration error. A more complex solution
-// would involve a separate server component for metadata.
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const post = communityPosts.find(p => p.id === params.id);
+
+  if (!post) {
+    return {
+      title: 'Post Not Found',
+    };
+  }
+
+  return {
+    title: post.title,
+    description: post.content.substring(0, 150),
+    alternates: {
+      canonical: `/community/${post.id}`,
+    },
+  };
+}
 
 export default function CommunityPostPage({ params }: Props) {
   const post = communityPosts.find(p => p.id === params.id);
-  const [formattedDate, setFormattedDate] = React.useState('');
-
-  React.useEffect(() => {
-    if (post) {
-      document.title = `${post.title} | GLP 트래커`;
-      setFormattedDate(new Date(post.createdAt).toLocaleDateString('ko-KR'));
-    }
-  }, [post]);
-
-  if (!post) {
-    // This will be caught by the notFound() call in a real app,
-    // but useEffect needs to handle the post being null initially.
-    return null;
-  }
 
   if (!post) {
     notFound();
   }
+
+  const formattedDate = new Date(post.createdAt).toLocaleDateString('ko-KR');
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -62,7 +62,7 @@ export default function CommunityPostPage({ params }: Props) {
                         <span className="flex items-center gap-1"><User className="h-4 w-4" />{post.author}</span>
                         <span className="flex items-center gap-1">
                           <Clock className="h-4 w-4" />
-                          {formattedDate || 'Loading...'}
+                          {formattedDate}
                         </span>
                     </div>
                 </CardHeader>
