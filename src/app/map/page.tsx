@@ -7,13 +7,15 @@ import type { Clinic, Report } from '@/lib/types';
 import FilterPanel from '@/components/map/filter-panel';
 import MapView from '@/components/map/map-view';
 import Header from '@/components/layout/header';
-import { Info, Share2 } from 'lucide-react';
+import { Info, Share2, SlidersHorizontal } from 'lucide-react';
 import Legend from '@/components/map/legend';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { db } from '@/lib/firebase';
 import { collection, getDocs, orderBy, query, onSnapshot } from 'firebase/firestore';
+import { useMedia } from 'use-media';
 
 
 export type Filters = {
@@ -26,6 +28,7 @@ export type Filters = {
 export default function MapPage() {
   const [activeTab, setActiveTab] = React.useState<'wegovy' | 'mounjaro'>('wegovy');
   const [firestoreReports, setFirestoreReports] = React.useState<Report[]>([]);
+  const isDesktop = useMedia({ minWidth: '768px' });
   
   React.useEffect(() => {
     document.title = `${items.find(i => i.id === activeTab)?.displayNameKo} 재고 지도 | GLP 트래커`;
@@ -151,21 +154,29 @@ export default function MapPage() {
 
   const productFilters = { product: activeTab, ...filters };
 
+  const FilterComponent = (
+    <>
+      <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as 'wegovy' | 'mounjaro')} className="p-4">
+        <TabsList className="grid w-full grid-cols-2">
+          <TabsTrigger value="wegovy">위고비</TabsTrigger>
+          <TabsTrigger value="mounjaro">마운자로</TabsTrigger>
+        </TabsList>
+      </Tabs>
+      <ScrollArea className="flex-1">
+        <FilterPanel filters={filters} setFilters={setFilters} product={activeTab} minPrice={minPrice} maxPrice={maxPrice} />
+      </ScrollArea>
+    </>
+  );
+
   return (
     <div className="flex flex-col h-screen bg-background text-foreground">
       <Header />
       <main className="flex flex-1 overflow-hidden">
-        <aside className="w-full md:w-96 lg:w-[26rem] border-r flex flex-col">
-            <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as 'wegovy' | 'mounjaro')} className="p-4">
-                <TabsList className="grid w-full grid-cols-2">
-                    <TabsTrigger value="wegovy">위고비</TabsTrigger>
-                    <TabsTrigger value="mounjaro">마운자로</TabsTrigger>
-                </TabsList>
-            </Tabs>
-            <ScrollArea className="flex-1">
-                 <FilterPanel filters={filters} setFilters={setFilters} product={activeTab} minPrice={minPrice} maxPrice={maxPrice} />
-            </ScrollArea>
-        </aside>
+        {isDesktop ? (
+            <aside className="w-full md:w-96 lg:w-[26rem] border-r flex flex-col">
+              {FilterComponent}
+            </aside>
+        ) : null}
         
         <div className="flex-1 relative">
             <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as 'wegovy' | 'mounjaro')} className="w-full h-full">
@@ -176,6 +187,26 @@ export default function MapPage() {
                 <MapView clinics={filteredClinics} filters={productFilters} />
               </TabsContent>
             </Tabs>
+
+            {!isDesktop && (
+              <div className="absolute top-4 left-4 z-10">
+                <Sheet>
+                  <SheetTrigger asChild>
+                    <Button variant="secondary" className="shadow-lg">
+                      <SlidersHorizontal className="mr-2 h-4 w-4" />
+                      필터
+                    </Button>
+                  </SheetTrigger>
+                  <SheetContent side="left" className="w-[85vw] flex flex-col p-0">
+                    <SheetHeader className="p-4 border-b">
+                      <SheetTitle>필터</SheetTitle>
+                    </SheetHeader>
+                    {FilterComponent}
+                  </SheetContent>
+                </Sheet>
+              </div>
+            )}
+
             <div className="absolute bottom-4 left-4 z-10 space-y-2 max-w-xs md:max-w-sm">
               <div className="bg-primary/80 text-primary-foreground p-3 rounded-md backdrop-blur-sm shadow-lg">
                 <div className="flex items-start gap-3">

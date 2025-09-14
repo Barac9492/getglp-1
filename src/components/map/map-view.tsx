@@ -3,9 +3,10 @@
 
 import * as React from 'react';
 import type { Clinic } from '@/lib/types';
-import { APIProvider, Map, AdvancedMarker, InfoWindow, Pin } from '@vis.gl/react-google-maps';
+import { APIProvider, Map, AdvancedMarker, InfoWindow, Pin, useMap } from '@vis.gl/react-google-maps';
 import ClinicInfoCard from './clinic-info-card';
 import { items } from '@/lib/mock-data';
+import { useMedia } from 'use-media';
 
 export type MapViewFilters = {
   product: 'wegovy' | 'mounjaro';
@@ -15,10 +16,16 @@ export type MapViewFilters = {
   verificationStatus: string;
 };
 
+const MapContainer = ({ clinics, filters, selectedClinicId, setSelectedClinicId } : { clinics: Clinic[], filters: MapViewFilters, selectedClinicId: string | null, setSelectedClinicId: (id: string | null) => void}) => {
+  const map = useMap();
+  const isMobile = useMedia({ maxWidth: '767px' });
+  const selectedClinic = clinics.find(c => c.id === selectedClinicId);
 
-export default function MapView({ clinics, filters }: { clinics: Clinic[]; filters: MapViewFilters }) {
-  const [selectedClinicId, setSelectedClinicId] = React.useState<string | null>(null);
-  const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
+  React.useEffect(() => {
+    if (map && selectedClinic) {
+      map.panTo({lat: selectedClinic.location.latitude, lng: selectedClinic.location.longitude});
+    }
+  }, [map, selectedClinic]);
 
   const getMarkerInfo = (clinic: Clinic) => {
     const { product } = filters;
@@ -40,7 +47,42 @@ export default function MapView({ clinics, filters }: { clinics: Clinic[]; filte
     return { color, borderColor, pulse };
   };
 
-  const selectedClinic = clinics.find(c => c.id === selectedClinicId);
+  return (
+    <>
+      {clinics.map((clinic) => {
+        const { color, borderColor, pulse } = getMarkerInfo(clinic);
+        const position = {lat: clinic.location.latitude, lng: clinic.location.longitude};
+        return (
+          <AdvancedMarker
+            key={clinic.id}
+            position={position}
+            onClick={() => setSelectedClinicId(clinic.id)}
+          >
+            <div className="relative">
+                {pulse && <div className="absolute inset-0 bg-primary/50 rounded-full animate-ping" />}
+                <Pin background={color} glyphColor={"#fff"} borderColor={borderColor} />
+            </div>
+          </AdvancedMarker>
+        );
+      })}
+      {selectedClinic && (
+          <InfoWindow
+            position={{lat: selectedClinic.location.latitude, lng: selectedClinic.location.longitude}}
+            onCloseClick={() => setSelectedClinicId(null)}
+            pixelOffset={isMobile ? [0, -40] : [0,-10]}
+          >
+            <div className="w-80">
+              <ClinicInfoCard clinic={selectedClinic} items={items} />
+            </div>
+          </InfoWindow>
+      )}
+    </>
+  )
+}
+
+export default function MapView({ clinics, filters }: { clinics: Clinic[]; filters: MapViewFilters }) {
+  const [selectedClinicId, setSelectedClinicId] = React.useState<string | null>(null);
+  const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
 
   if (!apiKey || apiKey === 'YOUR_API_KEY_HERE') {
     return (
@@ -62,7 +104,7 @@ export default function MapView({ clinics, filters }: { clinics: Clinic[]; filte
                         NEXT_PUBLIC_GOOGLE_MAPS_API_KEY="YOUR_API_KEY_HERE"
                     </code>
                 </div>
-                 <p className="text-xs text-muted-foreground mt-4">
+                  <p className="text-xs text-muted-foreground mt-4">
                     키를 추가한 후에는 개발 서버를 재시작해야 변경사항이 적용됩니다.
                 </p>
             </div>
@@ -79,33 +121,9 @@ export default function MapView({ clinics, filters }: { clinics: Clinic[]; filte
           mapId="glp-tracker-map"
           gestureHandling={'greedy'}
           disableDefaultUI={true}
+          onClick={() => setSelectedClinicId(null)}
         >
-          {clinics.map((clinic) => {
-            const { color, borderColor, pulse } = getMarkerInfo(clinic);
-            const position = {lat: clinic.location.latitude, lng: clinic.location.longitude};
-            return (
-              <AdvancedMarker
-                key={clinic.id}
-                position={position}
-                onClick={() => setSelectedClinicId(clinic.id)}
-              >
-                <div className="relative">
-                    {pulse && <div className="absolute inset-0 bg-primary/50 rounded-full animate-ping" />}
-                    <Pin background={color} glyphColor={"#fff"} borderColor={borderColor} />
-                </div>
-              </AdvancedMarker>
-            );
-          })}
-          {selectedClinic && (
-             <InfoWindow
-                position={{lat: selectedClinic.location.latitude, lng: selectedClinic.location.longitude}}
-                onCloseClick={() => setSelectedClinicId(null)}
-              >
-                <div className="w-80">
-                  <ClinicInfoCard clinic={selectedClinic} items={items} />
-                </div>
-              </InfoWindow>
-          )}
+          <MapContainer clinics={clinics} filters={filters} selectedClinicId={selectedClinicId} setSelectedClinicId={setSelectedClinicId} />
         </Map>
       </APIProvider>
     </div>
