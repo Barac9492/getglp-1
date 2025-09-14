@@ -13,10 +13,11 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Map, Syringe, User, LogOut, Settings, HelpCircle, List, Edit, MessageSquare, Shield } from 'lucide-react';
+import { Map, Syringe, User, LogOut, Settings, HelpCircle, List, Edit, MessageSquare, Shield, Menu } from 'lucide-react';
 import { auth } from '@/lib/firebase';
 import { GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged, User as FirebaseUser } from 'firebase/auth';
 import { getUserRole } from '@/app/actions/auth';
+import { Sheet, SheetContent, SheetTrigger, SheetClose } from '@/components/ui/sheet';
 
 
 const Logo = () => (
@@ -60,13 +61,17 @@ const UserNav: React.FC<{ user: FirebaseUser | null }> = ({ user }) => {
     React.useEffect(() => {
         const fetchRole = async () => {
             if (user) {
-                const idToken = await user.getIdToken();
-                const response = await fetch('/api/auth/role', {
-                    headers: { 'Authorization': `Bearer ${idToken}` }
-                });
-                if(response.ok) {
-                    const data = await response.json();
-                    setRole(data.role);
+                try {
+                    const idToken = await user.getIdToken();
+                    const response = await fetch('/api/auth/role', {
+                        headers: { 'Authorization': `Bearer ${idToken}` }
+                    });
+                    if(response.ok) {
+                        const data = await response.json();
+                        setRole(data.role);
+                    }
+                } catch (e) {
+                    console.error("Could not fetch user role", e);
                 }
             }
         }
@@ -139,16 +144,60 @@ export default function Header() {
     return (
         <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
             <div className="container flex h-14 items-center">
+                
+                {/* Mobile Menu */}
+                <div className="md:hidden">
+                    <Sheet>
+                        <SheetTrigger asChild>
+                            <Button variant="ghost" size="icon">
+                                <Menu className="h-5 w-5" />
+                                <span className="sr-only">Open menu</span>
+                            </Button>
+                        </SheetTrigger>
+                        <SheetContent side="left" className="pr-0">
+                            <div className="p-4">
+                                <Logo />
+                            </div>
+                            <nav className="grid gap-2 text-lg font-medium p-4">
+                                {navLinks.map(link => (
+                                    <SheetClose asChild key={link.href}>
+                                        <Link href={link.href} className="flex items-center gap-4 px-2.5 text-muted-foreground hover:text-foreground py-2">
+                                            {link.icon}
+                                            {link.label}
+                                        </Link>
+                                    </SheetClose>
+                                ))}
+                            </nav>
+                            <div className="p-4">
+                               <SheetClose asChild>
+                                <Link href="/report" passHref>
+                                    <Button className="w-full">
+                                    <Edit className="mr-2 h-4 w-4" />
+                                    정보 제보하기
+                                    </Button>
+                                </Link>
+                               </SheetClose>
+                            </div>
+                        </SheetContent>
+                    </Sheet>
+                </div>
+                
+                {/* Desktop Menu */}
                 <div className="mr-4 hidden md:flex">
                     <Logo />
                 </div>
-                <nav className="flex items-center gap-4 text-sm font-medium flex-1">
+                 <nav className="hidden md:flex items-center gap-4 text-sm font-medium flex-1">
                     {navLinks.map(link => (
-                         <Link key={link.href} href={link.href} className="text-foreground/60 transition-colors hover:text-foreground/80 hidden md:inline-block">{link.label}</Link>
+                         <Link key={link.href} href={link.href} className="text-foreground/60 transition-colors hover:text-foreground/80">{link.label}</Link>
                     ))}
                 </nav>
 
-                <div className="flex flex-1 items-center justify-end space-x-4">
+                {/* Centered Logo on Mobile */}
+                 <div className="flex flex-1 justify-center md:hidden">
+                    <Logo />
+                </div>
+
+                <div className="flex items-center justify-end space-x-2 md:flex-1">
                      <Link href="/report" passHref>
                         <Button variant="outline" size="sm" className="hidden md:inline-flex">
                           <Edit className="mr-2 h-4 w-4" />
