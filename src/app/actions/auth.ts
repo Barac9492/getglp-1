@@ -2,10 +2,10 @@
 'use server';
 
 import { headers } from 'next/headers';
-import { auth as adminAuth, app as adminApp } from 'firebase-admin';
 import type { DecodedIdToken } from 'firebase-admin/auth';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase-admin';
+import { auth as adminAuth } from 'firebase-admin';
 
 // This ensures firebase-admin is initialized
 import '@/lib/firebase-admin';
@@ -17,7 +17,7 @@ export async function getAuthenticatedUser(): Promise<DecodedIdToken | null> {
   if (authorization?.startsWith('Bearer ')) {
     const idToken = authorization.split('Bearer ')[1];
     try {
-      const decodedToken = await adminAuth(adminApp).verifyIdToken(idToken);
+      const decodedToken = await adminAuth().verifyIdToken(idToken);
       
       // One-time superadmin setup
       if (decodedToken.email === SUPERADMIN_EMAIL) {
@@ -49,4 +49,13 @@ export async function getUserRole(uid: string): Promise<'user' | 'admin' | 'supe
         console.error("Error fetching user role:", error);
         return 'user';
     }
+}
+
+export async function getRole(): Promise<{ role: 'user' | 'admin' | 'superadmin' }> {
+    const user = await getAuthenticatedUser();
+    if (!user) {
+        return { role: 'user' };
+    }
+    const role = await getUserRole(user.uid);
+    return { role };
 }
