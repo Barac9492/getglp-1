@@ -30,10 +30,11 @@ import { useRouter } from 'next/navigation';
 import { auth } from '@/lib/firebase';
 import { useSearchParams } from 'next/navigation';
 import React from 'react';
+import { Combobox } from '../ui/combobox';
 
 const reportFormSchema = z.object({
-  clinicId: z.string({ required_error: '클리닉을 선택해주세요.' }),
-  clinicName: z.string(), // Add clinicName
+  clinicId: z.string().optional(),
+  clinicName: z.string({ required_error: '클리닉을 선택하거나 이름을 입력해주세요.' }),
   item: z.enum(['wegovy', 'mounjaro'], { required_error: '제품을 선택해주세요.' }),
   availability: z.enum(['available', 'unavailable'], { required_error: '가용성을 선택해주세요.' }),
   priceKRW: z.coerce.number().optional(),
@@ -43,6 +44,11 @@ const reportFormSchema = z.object({
 });
 
 export type ReportFormValues = z.infer<typeof reportFormSchema>;
+
+const clinicOptions = clinics.map(clinic => ({
+    value: clinic.id,
+    label: `${clinic.name} (${clinic.district})`,
+}));
 
 export default function ReportForm() {
     const { toast } = useToast();
@@ -62,8 +68,11 @@ export default function ReportForm() {
     React.useEffect(() => {
         const clinicId = searchParams.get('clinicId');
         if (clinicId) {
-            form.setValue('clinicId', clinicId);
-            form.setValue('clinicName', clinics.find(c => c.id === clinicId)?.name || '');
+            const clinic = clinics.find(c => c.id === clinicId);
+            if (clinic) {
+                form.setValue('clinicId', clinicId);
+                form.setValue('clinicName', clinic.name);
+            }
         }
     }, [searchParams, form]);
 
@@ -77,6 +86,14 @@ export default function ReportForm() {
         });
         return;
     }
+
+    // If a new clinic is being added, clinicId will be undefined.
+    // We rely on clinicName in that case.
+    if (!data.clinicId && !data.clinicName) {
+        form.setError('clinicName', { message: '클리닉을 선택하거나 새로 입력해주세요.'});
+        return;
+    }
+
 
     try {
         const token = await user.getIdToken();
@@ -115,30 +132,27 @@ export default function ReportForm() {
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
         <FormField
           control={form.control}
-          name="clinicId"
+          name="clinicName"
           render={({ field }) => (
-            <FormItem>
+            <FormItem className="flex flex-col">
               <FormLabel>클리닉 선택</FormLabel>
-              <Select 
-                onValueChange={(value) => {
-                    field.onChange(value);
-                    form.setValue('clinicName', clinics.find(c => c.id === value)?.name || '');
-                }} 
-                value={field.value}
-              >
-                <FormControl>
-                  <SelectTrigger>
-                    <SelectValue placeholder="검색하거나 목록에서 클리닉을 선택하세요" />
-                  </SelectTrigger>
-                </FormControl>
-                <SelectContent>
-                  {clinics.map((clinic) => (
-                    <SelectItem key={clinic.id} value={clinic.id}>
-                      {clinic.name} ({clinic.district})
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+                <Combobox
+                    options={clinicOptions}
+                    value={field.value}
+                    onChange={(value) => {
+                        const selectedOption = clinicOptions.find(opt => opt.label.toLowerCase() === value.toLowerCase());
+                        if (selectedOption) {
+                            form.setValue('clinicId', selectedOption.value);
+                            form.setValue('clinicName', clinics.find(c => c.id === selectedOption.value)?.name || selectedOption.label);
+                        } else {
+                            // It's a new clinic
+                            form.setValue('clinicId', undefined);
+                            form.setValue('clinicName', value);
+                        }
+                    }}
+                    placeholder="클리닉 이름 검색 또는 추가..."
+                    inputPlaceholder="새 클리닉 이름 입력"
+                />
               <FormMessage />
             </FormItem>
           )}
