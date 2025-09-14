@@ -50,12 +50,3 @@ export async function getUserRole(uid: string): Promise<'user' | 'admin' | 'supe
         return 'user';
     }
 }
-
-export async function getRole(): Promise<{ role: 'user' | 'admin' | 'superadmin' }> {
-    const user = await getAuthenticatedUser();
-    if (!user) {
-        return { role: 'user' };
-    }
-    const role = await getUserRole(user.uid);
-    return { role };
-}

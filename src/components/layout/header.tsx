@@ -16,7 +16,6 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Map, Syringe, User, LogOut, Settings, HelpCircle, List, Edit, MessageSquare, Shield, Menu } from 'lucide-react';
 import { auth } from '@/lib/firebase';
 import { GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged, User as FirebaseUser } from 'firebase/auth';
-import { getRole } from '@/app/actions/auth';
 import { Sheet, SheetContent, SheetTrigger, SheetClose } from '@/components/ui/sheet';
 
 
@@ -62,12 +61,21 @@ const UserNav: React.FC<{ user: FirebaseUser | null }> = ({ user }) => {
         const fetchRole = async () => {
             if (user) {
                 try {
-                    // We no longer need to construct the headers manually for server actions
-                    const roleData = await getRole();
-                    setRole(roleData.role);
+                    const token = await user.getIdToken();
+                    const response = await fetch('/api/auth/role', {
+                        headers: {
+                            Authorization: `Bearer ${token}`,
+                        },
+                    });
+                    if (response.ok) {
+                        const data = await response.json();
+                        setRole(data.role);
+                    }
                 } catch (e) {
                     console.error("Could not fetch user role", e);
                 }
+            } else {
+                setRole('user');
             }
         }
         fetchRole();

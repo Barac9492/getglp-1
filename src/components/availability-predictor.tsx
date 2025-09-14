@@ -1,7 +1,8 @@
+
 'use client';
 
 import { useState, useEffect } from 'react';
-import { predictAvailability, PredictAvailabilityOutput } from '@/ai/flows/availability-prediction';
+import type { PredictAvailabilityOutput } from '@/ai/flows/availability-prediction';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Card, CardContent } from '@/components/ui/card';
@@ -78,14 +79,28 @@ export function AvailabilityPredictor({ clinic, item }: { clinic: Clinic, item: 
         return `Report from ${daysAgo} days ago (${r.verification}, ${r.votes} votes): ${r.availability} ${r.priceKRW ? `for ${r.priceKRW.toLocaleString()} KRW` : ''}`;
       }).join('; ');
 
-      const result = await predictAvailability({
+      const input = {
         clinicName: clinic.name,
         itemName: itemName,
         historicalData: historicalData || 'No historical data available.',
         userReports: userReports || 'No recent user reports.',
         regionalTrends: `Supply in ${clinic.district} is currently uncertain.`,
+      };
+
+      const response = await fetch('/api/predict', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(input),
       });
+
+      if (!response.ok) {
+        const err = await response.json();
+        throw new Error(err.error || 'Prediction request failed');
+      }
+
+      const result = await response.json();
       setPrediction(result);
+
     } catch (e) {
       setError('AI 예측에 실패했습니다. 잠시 후 다시 시도해주세요.');
       console.error(e);
