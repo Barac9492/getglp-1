@@ -8,34 +8,31 @@ import { Button } from '@/components/ui/button';
 import { ThumbsUp, MessageSquare, Clock, User, ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 import CommentSection from '@/components/community/comment-section';
-import type { Metadata, NextPage } from 'next';
+import type { Metadata, PageProps } from 'next';
 
-// Define Props type
-type Props = {
-  params: { id: string };
-  searchParams?: { [key: string]: string | string[] | undefined };
-};
-
-// Generate metadata (keep async as it may fetch data)
-export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const post = communityPosts.find((p) => p.id === params.id);
+// ✅ Use Next.js’ PageProps helper instead of a custom Props
+// This ensures params is typed as a Promise
+export async function generateMetadata(
+  props: PageProps<'/community/[id]'>
+): Promise<Metadata> {
+  const { id } = await props.params;
+  const post = communityPosts.find((p) => p.id === id);
   if (!post) {
-    return {
-      title: 'Post Not Found',
-    };
+    return { title: 'Post Not Found' };
   }
   return {
     title: post.title,
     description: post.content.substring(0, 150),
-    alternates: {
-      canonical: `/community/${post.id}`,
-    },
+    alternates: { canonical: `/community/${post.id}` },
   };
 }
 
-// Define the page component (synchronous, no async)
-const CommunityPostPage: NextPage<Props> = ({ params }) => {
-  const post = communityPosts.find((p) => p.id === params.id);
+// ✅ Page must also await params
+export default async function CommunityPostPage(
+  props: PageProps<'/community/[id]'>
+) {
+  const { id } = await props.params;
+  const post = communityPosts.find((p) => p.id === id);
   if (!post) {
     notFound();
   }
@@ -93,6 +90,4 @@ const CommunityPostPage: NextPage<Props> = ({ params }) => {
       <Footer />
     </div>
   );
-};
-
-export default CommunityPostPage;
+}

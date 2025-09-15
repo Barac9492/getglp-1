@@ -6,7 +6,7 @@ import { collection, getDocs, doc, setDoc, deleteDoc } from 'firebase/firestore'
 import { db } from '@/lib/firebase-admin';
 import { getAuthenticatedUser, getUserRole } from './auth';
 import { revalidatePath } from 'next/cache';
-import type { User as AuthUser } from 'firebase-admin/auth';
+import type { UserRecord as AuthUser } from 'firebase-admin/auth';
 
 // This ensures firebase-admin is initialized
 import '@/lib/firebase-admin';
