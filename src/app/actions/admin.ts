@@ -1,8 +1,7 @@
 
 'use server';
 
-import { auth as adminAuth, app as adminApp } from 'firebase-admin';
-import { collection, getDocs, doc, setDoc, deleteDoc } from 'firebase/firestore';
+import { auth as adminAuth } from 'firebase-admin';
 import { db } from '@/lib/firebase-admin';
 import { getAuthenticatedUser, getUserRole } from './auth';
 import { revalidatePath } from 'next/cache';
@@ -22,8 +21,8 @@ export async function getAllUsers(): Promise<UserView[]> {
     if (role !== 'admin' && role !== 'superadmin') throw new Error('Unauthorized');
     
     try {
-        const userRecords = await adminAuth(adminApp()).listUsers();
-        const rolesSnapshot = await getDocs(collection(db, 'roles'));
+        const userRecords = await adminAuth().listUsers();
+        const rolesSnapshot = await db.collection('roles').get();
         const rolesMap = new Map(rolesSnapshot.docs.map(d => [d.id, d.data().role]));
         
         const users: UserView[] = userRecords.users.map(u => ({
@@ -52,12 +51,13 @@ export async function updateUserRole(targetUid: string, newRole: 'user' | 'admin
     }
 
     try {
-        const targetRoleDoc = await getDoc(doc(db, 'roles', targetUid));
-        if (targetRoleDoc.exists() && targetRoleDoc.data()?.role === 'superadmin') {
+        const targetRoleDocRef = db.collection('roles').doc(targetUid);
+        const targetRoleDoc = await targetRoleDocRef.get();
+        if (targetRoleDoc.exists && targetRoleDoc.data()?.role === 'superadmin') {
             return { success: false, error: "Cannot change another superadmin's role." };
         }
 
-        await setDoc(doc(db, 'roles', targetUid), { role: newRole });
+        await targetRoleDocRef.set({ role: newRole });
         revalidatePath('/admin');
         return { success: true };
     } catch (error) {
@@ -80,13 +80,14 @@ export async function deleteUser(targetUid: string): Promise<{success: boolean, 
     }
 
     try {
-        const targetRoleDoc = await getDoc(doc(db, 'roles', targetUid));
-        if (targetRoleDoc.exists() && targetRoleDoc.data()?.role === 'superadmin') {
+        const targetRoleDocRef = db.collection('roles').doc(targetUid);
+        const targetRoleDoc = await targetRoleDocRef.get();
+        if (targetRoleDoc.exists && targetRoleDoc.data()?.role === 'superadmin') {
             return { success: false, error: 'Cannot delete a superadmin.' };
         }
 
-        await adminAuth(adminApp()).deleteUser(targetUid);
-        await deleteDoc(doc(db, 'roles', targetUid));
+        await adminAuth().deleteUser(targetUid);
+        await targetRoleDocRef.delete();
         revalidatePath('/admin');
         return { success: true };
     } catch (error) {
@@ -94,3 +95,4 @@ export async function deleteUser(targetUid: string): Promise<{success: boolean, 
         return { success: false, error: 'Failed to delete user.' };
     }
 }
+
