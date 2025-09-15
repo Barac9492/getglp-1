@@ -1,4 +1,3 @@
-
 import * as React from 'react';
 import { communityPosts } from '@/lib/mock-data';
 import { notFound } from 'next/navigation';
