@@ -33,7 +33,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   };
 }
 
-export default function CommunityPostPage({ params }: Props) {
+export default async function CommunityPostPage({ params }: Props) {
   const post = communityPosts.find(p => p.id === params.id);
 
   if (!post) {
