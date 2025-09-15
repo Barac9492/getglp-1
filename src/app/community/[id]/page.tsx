@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { ThumbsUp, MessageSquare, Clock, User, ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 import CommentSection from '@/components/community/comment-section';
-import type { Metadata } from 'next';
+import type { Metadata, NextPage } from 'next';
 
 type Props = {
   params: { id: string }
@@ -33,7 +33,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   };
 }
 
-export default async function CommunityPostPage({ params }: Props) {
+const CommunityPostPage: NextPage<Props> = ({ params }) => {
   const post = communityPosts.find(p => p.id === params.id);
 
   if (!post) {
@@ -89,3 +89,5 @@ export default async function CommunityPostPage({ params }: Props) {
     </div>
   );
 }
+
+export default CommunityPostPage;
