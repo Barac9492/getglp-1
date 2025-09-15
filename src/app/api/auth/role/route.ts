@@ -1,19 +1,18 @@
 
 import { NextRequest, NextResponse } from 'next/server';
-import { initializeApp, getApps, getApp, cert } from 'firebase-admin/app';
+import { initializeApp, getApps, getApp, cert, type App } from 'firebase-admin/app';
 import { getFirestore, doc, getDoc } from 'firebase-admin/firestore';
 import { getAuth } from 'firebase-admin/auth';
 
-// This is a self-contained initialization to avoid build issues.
 const serviceAccount = {
   "projectId": process.env.FIREBASE_PROJECT_ID,
   "clientEmail": process.env.FIREBASE_CLIENT_EMAIL,
   "privateKey": process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
 };
 
-const adminApp = !getApps().length 
-  ? initializeApp({ credential: cert(serviceAccount) }) 
-  : getApp();
+const adminApp: App = getApps().length 
+  ? getApp()
+  : initializeApp({ credential: cert(serviceAccount) });
 
 const adminAuth = getAuth(adminApp);
 const db = getFirestore(adminApp);

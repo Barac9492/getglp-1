@@ -22,7 +22,7 @@ export async function getAllUsers(): Promise<UserView[]> {
     if (role !== 'admin' && role !== 'superadmin') throw new Error('Unauthorized');
     
     try {
-        const userRecords = await adminAuth(adminApp).listUsers();
+        const userRecords = await adminAuth(adminApp()).listUsers();
         const rolesSnapshot = await getDocs(collection(db, 'roles'));
         const rolesMap = new Map(rolesSnapshot.docs.map(d => [d.id, d.data().role]));
         
@@ -85,7 +85,7 @@ export async function deleteUser(targetUid: string): Promise<{success: boolean, 
             return { success: false, error: 'Cannot delete a superadmin.' };
         }
 
-        await adminAuth(adminApp).deleteUser(targetUid);
+        await adminAuth(adminApp()).deleteUser(targetUid);
         await deleteDoc(doc(db, 'roles', targetUid));
         revalidatePath('/admin');
         return { success: true };

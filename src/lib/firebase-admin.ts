@@ -1,5 +1,5 @@
 
-import { initializeApp, getApps, getApp, cert } from 'firebase-admin/app';
+import { initializeApp, getApps, getApp, cert, type App } from 'firebase-admin/app';
 import { getFirestore } from 'firebase-admin/firestore';
 import { getAuth } from 'firebase-admin/auth';
 
@@ -12,11 +12,11 @@ const serviceAccount = {
   "privateKey": process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
 };
 
-const app = !getApps().length 
-  ? initializeApp({
+const app: App = getApps().length 
+  ? getApp()
+  : initializeApp({
       credential: cert(serviceAccount)
-    }) 
-  : getApp();
+    });
 
 const db = getFirestore(app);
 const auth = getAuth(app);
