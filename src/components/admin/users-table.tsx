@@ -66,7 +66,7 @@ export function UsersTable({ initialUsers, currentUserRole }: UsersTableProps) {
               <TableCell>
                 <Badge variant={roleVariant[user.role]}>{user.role}</Badge>
               </TableCell>
-              <TableCell>{new Date(user.metadata.lastSignInTime!).toLocaleDateString()}</TableCell>
+              <TableCell>{user.metadata.lastSignInTime ? new Date(user.metadata.lastSignInTime).toLocaleDateString() : 'N/A'}</TableCell>
               <TableCell>
                 {currentUserRole === 'superadmin' && user.role !== 'superadmin' && (
                   <DropdownMenu>

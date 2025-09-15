@@ -14,7 +14,7 @@ import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { db } from '@/lib/firebase';
-import { collection, getDocs, orderBy, query, onSnapshot } from 'firebase/firestore';
+import { collection, query, orderBy, onSnapshot, Timestamp } from 'firebase/firestore';
 import { useMedia } from 'use-media';
 
 
@@ -42,11 +42,12 @@ export default function MapPage() {
     const unsubscribe = onSnapshot(q, (snapshot) => {
       const reports = snapshot.docs.map(doc => {
         const data = doc.data();
+        const reportedAt = data.reportedAt instanceof Timestamp ? data.reportedAt.toDate() : new Date();
         return {
           id: doc.id,
           ...data,
-          _date: data.reportedAt?.toDate() || new Date(),
-          reportedAt: data.reportedAt?.toDate()?.toISOString() || new Date().toISOString(),
+          _date: reportedAt,
+          reportedAt: reportedAt.toISOString(),
         } as Report;
       });
       setFirestoreReports(reports);

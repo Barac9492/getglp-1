@@ -1,46 +1,47 @@
+
+'use client';
+
+import * as React from 'react';
 import Header from '@/components/layout/header';
 import Footer from '@/components/layout/footer';
 import { clinics } from '@/lib/mock-data';
 import ReportCard from '@/components/queue/report-card';
-import type { Metadata } from 'next';
+import { collection, query, orderBy, onSnapshot, Timestamp } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
-import { collection, getDocs, orderBy, query } from 'firebase/firestore';
 import type { Report } from '@/lib/types';
-import { unstable_noStore as noStore } from 'next/cache';
-
-export const metadata: Metadata = {
-  title: '최신 제보 목록',
-  description: '위고비, 마운자로 등 GLP-1 의약품 가용성에 대한 최신 사용자 제보를 확인하고, 정보의 신뢰도를 높이기 위해 투표에 참여하세요.',
-  alternates: {
-    canonical: '/queue',
-  },
-};
-
-async function getReportsFromFirestore(): Promise<Report[]> {
-  noStore();
-  try {
-    const reportsCollection = collection(db, 'reports');
-    const q = query(reportsCollection, orderBy('reportedAt', 'desc'));
-    const reportSnapshot = await getDocs(q);
-    const reports = reportSnapshot.docs.map(doc => {
-      const data = doc.data();
-      return {
-        id: doc.id,
-        ...data,
-        _date: data.reportedAt?.toDate() || new Date(),
-        reportedAt: data.reportedAt?.toDate()?.toISOString() || new Date().toISOString(),
-      } as Report;
-    });
-    return reports;
-  } catch (error) {
-    console.error("Error fetching reports from Firestore: ", error);
-    return []; // Return empty array on error
-  }
-}
+import { Loader2 } from 'lucide-react';
 
 
-export default async function QueuePage() {
-    const firestoreReports = await getReportsFromFirestore();
+export default function QueuePage() {
+    const [firestoreReports, setFirestoreReports] = React.useState<Report[]>([]);
+    const [loading, setLoading] = React.useState(true);
+
+    React.useEffect(() => {
+        document.title = '최신 제보 목록 | GLP 트래커';
+        
+        const reportsCollection = collection(db, 'reports');
+        const q = query(reportsCollection, orderBy('reportedAt', 'desc'));
+        
+        const unsubscribe = onSnapshot(q, (snapshot) => {
+            const reports = snapshot.docs.map(doc => {
+                const data = doc.data();
+                const reportedAt = data.reportedAt instanceof Timestamp ? data.reportedAt.toDate() : new Date();
+                return {
+                    id: doc.id,
+                    ...data,
+                    _date: reportedAt,
+                    reportedAt: reportedAt.toISOString(),
+                } as Report;
+            });
+            setFirestoreReports(reports);
+            setLoading(false);
+        }, (error) => {
+            console.error("Error fetching reports:", error);
+            setLoading(false);
+        });
+
+        return () => unsubscribe();
+    }, []);
 
     const adminReports = [
         ...clinics.map(c => ({
@@ -87,7 +88,16 @@ export default async function QueuePage() {
             </div>
             
             <div className="space-y-4">
-                {allReports.map(report => (
+                {loading && (
+                    <div className="flex items-center justify-center p-8">
+                        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                        <p className="ml-4 text-muted-foreground">최신 제보를 불러오는 중입니다...</p>
+                    </div>
+                )}
+                {!loading && allReports.length === 0 && (
+                    <p className="text-center text-muted-foreground py-8">아직 제보된 정보가 없습니다. 첫 번째 제보를 등록해보세요!</p>
+                )}
+                {!loading && allReports.map(report => (
                     <ReportCard key={report.id} report={report} />
                 ))}
             </div>
