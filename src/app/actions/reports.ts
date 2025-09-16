@@ -1,17 +1,16 @@
 
 'use server';
 
-import { collection, getDocs, query, orderBy, doc, updateDoc, deleteDoc } from 'firebase/firestore';
-import { db } from '@/lib/firebase-admin';
+import { adminDb } from '@/lib/firebase-admin';
 import type { Report } from '@/lib/types';
 import { getAuthenticatedUser, getUserRole } from './auth';
 import { revalidatePath } from 'next/cache';
 
 export async function getAllReports(): Promise<Report[]> {
   try {
-    const reportsCollection = collection(db, 'reports');
-    const q = query(reportsCollection, orderBy('reportedAt', 'desc'));
-    const reportSnapshot = await getDocs(q);
+    const reportsCollection = adminDb.collection('reports');
+    const q = reportsCollection.orderBy('reportedAt', 'desc');
+    const reportSnapshot = await q.get();
     const reports = reportSnapshot.docs.map(doc => {
       const data = doc.data();
       return {
@@ -35,8 +34,8 @@ export async function verifyReport(reportId: string, verification: 'admin-verifi
     if (role !== 'admin' && role !== 'superadmin') return { success: false, error: 'Unauthorized' };
 
     try {
-        const reportRef = doc(db, 'reports', reportId);
-        await updateDoc(reportRef, { verification });
+        const reportRef = adminDb.collection('reports').doc(reportId);
+        await reportRef.update({ verification });
         revalidatePath('/admin');
         revalidatePath('/queue');
         return { success: true };
@@ -53,7 +52,7 @@ export async function deleteReport(reportId: string): Promise<{ success: boolean
     if (role !== 'admin' && role !== 'superadmin') return { success: false, error: 'Unauthorized' };
 
     try {
-        await deleteDoc(doc(db, 'reports', reportId));
+        await adminDb.collection('reports').doc(reportId).delete();
         revalidatePath('/admin');
         revalidatePath('/queue');
         return { success: true };

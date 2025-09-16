@@ -1,8 +1,8 @@
 
 'use server';
 
-import { db } from '@/lib/firebase-admin';
-import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
+import { adminDb } from '@/lib/firebase-admin';
+import { FieldValue } from 'firebase-admin/firestore';
 import { revalidatePath } from 'next/cache';
 import { getAuthenticatedUser } from './auth';
 
@@ -18,14 +18,14 @@ export async function saveComment(postId: string, content: string) {
   }
 
   try {
-    const commentsCollection = collection(db, 'comments');
-    await addDoc(commentsCollection, {
+    const commentsCollection = adminDb.collection('comments');
+    await commentsCollection.add({
       postId,
       content,
       authorId: user.uid,
       authorName: user.name || 'Anonymous',
       authorPhotoURL: user.picture || null,
-      createdAt: serverTimestamp(),
+      createdAt: FieldValue.serverTimestamp(),
     });
 
     revalidatePath(`/community/${postId}`);

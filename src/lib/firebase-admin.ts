@@ -1,24 +1,29 @@
 
-import { initializeApp, getApps, getApp, cert, type App } from 'firebase-admin/app';
-import { getFirestore } from 'firebase-admin/firestore';
+'use server';
+// src/lib/firebase-admin.ts
+import 'server-only';
+import { initializeApp, getApps, cert, type App } from 'firebase-admin/app';
 import { getAuth } from 'firebase-admin/auth';
+import { getFirestore } from 'firebase-admin/firestore';
 
-// IMPORTANT: Do not expose this to the client-side
-// This service account is for backend use only
-const serviceAccount = {
-  "projectId": process.env.FIREBASE_PROJECT_ID,
-  "clientEmail": process.env.FIREBASE_CLIENT_EMAIL,
-  // Private key is sensitive and should be handled with care
-  "privateKey": process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
-};
+// Optional: env-based service account (works locally & on CI/CD).
+// If you're on Firebase Hosting/Functions with ADC, leaving these undefined is fine.
+const projectId = process.env.FIREBASE_PROJECT_ID;
+const clientEmail = process.env.FIREBASE_CLIENT_EMAIL;
+const privateKey = process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n');
 
-const app: App = getApps().length 
-  ? getApp()
-  : initializeApp({
-      credential: cert(serviceAccount)
-    });
+const app: App =
+  getApps()[0] ??
+  initializeApp(
+    projectId && clientEmail && privateKey
+      ? { credential: cert({ projectId, clientEmail, privateKey }) }
+      : {} // ADC fallback on Firebase/GCP runtimes
+  );
 
-const db = getFirestore(app);
-const auth = getAuth(app);
+export const adminApp = app;                 // <-- named export
+export const adminAuth = getAuth(app);
+export const adminDb = getFirestore(app);
 
-export { app, db, auth };
+// Export default too, so `import adminApp from ...` also works.
+export default app;
+export type { App };

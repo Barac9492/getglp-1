@@ -1,12 +1,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
-import { getFirestore } from 'firebase-admin/firestore';
-import { getAuth } from 'firebase-admin/auth';
-import { app as adminApp } from '@/lib/firebase-admin';
+import { adminDb, adminAuth } from '@/lib/firebase-admin';
 
-
-const adminAuth = getAuth(adminApp);
-const db = getFirestore(adminApp);
 
 async function getRoleFromToken(idToken: string): Promise<'user' | 'admin' | 'superadmin'> {
   try {
@@ -15,10 +10,10 @@ async function getRoleFromToken(idToken: string): Promise<'user' | 'admin' | 'su
     
     if (!uid) return 'user';
 
-    const userRoleRef = db.collection('roles').doc(uid);
+    const userRoleRef = adminDb.collection('roles').doc(uid);
     const roleDoc = await userRoleRef.get();
 
-    if (roleDoc.exists()) {
+    if (roleDoc.exists) {
       return roleDoc.data()?.role || 'user';
     }
     return 'user';

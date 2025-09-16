@@ -4,9 +4,7 @@
 import 'server-only';
 import { headers } from 'next/headers';
 import type { DecodedIdToken } from 'firebase-admin/auth';
-import { getFirestore } from 'firebase-admin/firestore';
-import { getAuth } from 'firebase-admin/auth';
-import { app as adminApp } from '@/lib/firebase-admin';
+import { adminDb, adminAuth } from '@/lib/firebase-admin';
 
 const SUPERADMIN_EMAIL = 'ethancho12@gmail.com';
 
@@ -20,12 +18,11 @@ export async function getAuthenticatedUser(): Promise<DecodedIdToken | null> {
 
   const idToken = authorization.split('Bearer ')[1];
   try {
-    const decodedToken = await getAuth(adminApp).verifyIdToken(idToken, true); // Check for revocation
-    const db = getFirestore(adminApp);
+    const decodedToken = await adminAuth.verifyIdToken(idToken, true); // Check for revocation
     
     // One-time superadmin setup
     if (decodedToken.email === SUPERADMIN_EMAIL) {
-        const userRoleRef = db.collection('roles').doc(decodedToken.uid);
+        const userRoleRef = adminDb.collection('roles').doc(decodedToken.uid);
         const roleDoc = await userRoleRef.get();
         if (!roleDoc.exists) {
             await userRoleRef.set({ role: 'superadmin' });
@@ -41,8 +38,7 @@ export async function getAuthenticatedUser(): Promise<DecodedIdToken | null> {
 export async function getUserRole(uid: string): Promise<'user' | 'admin' | 'superadmin'> {
     if (!uid) return 'user';
     try {
-        const db = getFirestore(adminApp);
-        const userRoleRef = db.collection('roles').doc(uid);
+        const userRoleRef = adminDb.collection('roles').doc(uid);
         const roleDoc = await userRoleRef.get();
         if (roleDoc.exists) {
             const role = roleDoc.data()?.role;

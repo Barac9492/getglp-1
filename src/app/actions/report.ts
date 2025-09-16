@@ -2,8 +2,8 @@
 'use server';
 
 import { ReportFormValues } from '@/components/report/report-form';
-import { db } from '@/lib/firebase-admin';
-import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
+import { adminDb } from '@/lib/firebase-admin';
+import { FieldValue } from 'firebase-admin/firestore';
 import { revalidatePath } from 'next/cache';
 import { getAuthenticatedUser } from './auth';
 
@@ -15,12 +15,12 @@ export async function saveReport(data: ReportFormValues) {
   }
 
   try {
-    const reportsCollection = collection(db, 'reports');
-    await addDoc(reportsCollection, {
+    const reportsCollection = adminDb.collection('reports');
+    await reportsCollection.add({
       ...data,
       clinicName: data.clinicName, 
       priceKRW: data.priceKRW ? Number(data.priceKRW) : null,
-      reportedAt: serverTimestamp(),
+      reportedAt: FieldValue.serverTimestamp(),
       reportedBy: user.name || user.uid,
       verification: 'unverified',
       votes: 0,
