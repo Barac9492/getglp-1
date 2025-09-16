@@ -6,7 +6,7 @@ import { headers } from 'next/headers';
 import type { DecodedIdToken } from 'firebase-admin/auth';
 import { getFirestore } from 'firebase-admin/firestore';
 import { getAuth } from 'firebase-admin/auth';
-import { adminApp } from '@/lib/firebase-admin';
+import { app as adminApp } from '@/lib/firebase-admin';
 
 const SUPERADMIN_EMAIL = 'ethancho12@gmail.com';
 
@@ -45,7 +45,10 @@ export async function getUserRole(uid: string): Promise<'user' | 'admin' | 'supe
         const userRoleRef = db.collection('roles').doc(uid);
         const roleDoc = await userRoleRef.get();
         if (roleDoc.exists) {
-            return roleDoc.data()?.role || 'user';
+            const role = roleDoc.data()?.role;
+            if (role === 'admin' || role === 'superadmin') {
+                return role;
+            }
         }
         return 'user';
     } catch (error) {

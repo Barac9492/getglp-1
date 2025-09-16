@@ -1,18 +1,9 @@
 
 import { NextRequest, NextResponse } from 'next/server';
-import { initializeApp, getApps, getApp, cert, type App } from 'firebase-admin/app';
-import { getFirestore, doc, getDoc } from 'firebase-admin/firestore';
+import { getFirestore } from 'firebase-admin/firestore';
 import { getAuth } from 'firebase-admin/auth';
+import { app as adminApp } from '@/lib/firebase-admin';
 
-const serviceAccount = {
-  "projectId": process.env.FIREBASE_PROJECT_ID,
-  "clientEmail": process.env.FIREBASE_CLIENT_EMAIL,
-  "privateKey": process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
-};
-
-const adminApp: App = getApps().length 
-  ? getApp()
-  : initializeApp({ credential: cert(serviceAccount) });
 
 const adminAuth = getAuth(adminApp);
 const db = getFirestore(adminApp);
@@ -24,8 +15,8 @@ async function getRoleFromToken(idToken: string): Promise<'user' | 'admin' | 'su
     
     if (!uid) return 'user';
 
-    const userRoleRef = doc(db, 'roles', uid);
-    const roleDoc = await getDoc(userRoleRef);
+    const userRoleRef = db.collection('roles').doc(uid);
+    const roleDoc = await userRoleRef.get();
 
     if (roleDoc.exists()) {
       return roleDoc.data()?.role || 'user';
