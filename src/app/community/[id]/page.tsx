@@ -1,3 +1,4 @@
+
 import * as React from 'react';
 import { communityPosts } from '@/lib/mock-data';
 import { notFound } from 'next/navigation';
@@ -8,31 +9,34 @@ import { Button } from '@/components/ui/button';
 import { ThumbsUp, MessageSquare, Clock, User, ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 import CommentSection from '@/components/community/comment-section';
-import type { Metadata, PageProps } from 'next';
+import type { Metadata } from 'next';
 
-// ✅ Use Next.js’ PageProps helper instead of a custom Props
-// This ensures params is typed as a Promise
-export async function generateMetadata(
-  props: PageProps<'/community/[id]'>
-): Promise<Metadata> {
-  const { id } = await props.params;
-  const post = communityPosts.find((p) => p.id === id);
+interface PageProps {
+  params: { id: string };
+  searchParams?: { [key: string]: string | string[] | undefined };
+}
+
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+  const post = communityPosts.find(p => p.id === params.id);
+
   if (!post) {
-    return { title: 'Post Not Found' };
+    return {
+      title: 'Post Not Found',
+    };
   }
+
   return {
     title: post.title,
     description: post.content.substring(0, 150),
-    alternates: { canonical: `/community/${post.id}` },
+    alternates: {
+      canonical: `/community/${post.id}`,
+    },
   };
 }
 
-// ✅ Page must also await params
-export default async function CommunityPostPage(
-  props: PageProps<'/community/[id]'>
-) {
-  const { id } = await props.params;
-  const post = communityPosts.find((p) => p.id === id);
+export default async function CommunityPostPage({ params }: PageProps) {
+  const post = communityPosts.find(p => p.id === params.id);
+
   if (!post) {
     notFound();
   }
@@ -45,45 +49,40 @@ export default async function CommunityPostPage(
       <main className="flex-1 bg-muted/40">
         <div className="container mx-auto py-8 md:py-12">
           <div className="mx-auto max-w-3xl">
-            <div className="mb-4">
-              <Link href="/community" passHref>
-                <Button variant="outline" size="sm" className="gap-1">
-                  <ArrowLeft className="h-4 w-4" />
-                  목록으로 돌아가기
-                </Button>
-              </Link>
+             <div className="mb-4">
+                <Link href="/community" passHref>
+                    <Button variant="outline" size="sm" className="gap-1">
+                        <ArrowLeft className="h-4 w-4" />
+                        목록으로 돌아가기
+                    </Button>
+                </Link>
             </div>
             <Card>
-              <CardHeader>
-                <CardTitle className="text-2xl font-headline">{post.title}</CardTitle>
-                <div className="flex items-center gap-4 text-sm text-muted-foreground pt-2">
-                  <span className="flex items-center gap-1">
-                    <User className="h-4 w-4" />
-                    {post.author}
-                  </span>
-                  <span className="flex items-center gap-1">
-                    <Clock className="h-4 w-4" />
-                    {formattedDate}
-                  </span>
-                </div>
-              </CardHeader>
-              <CardContent className="prose prose-sm max-w-none text-foreground/90 leading-relaxed">
-                <p>{post.content}</p>
-              </CardContent>
-              <CardFooter className="flex justify-between items-center bg-muted/50 py-3">
-                <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                  <span className="flex items-center gap-1 font-semibold">
-                    <ThumbsUp className="h-4 w-4" /> {post.votes} Votes
-                  </span>
-                  <span className="flex items-center gap-1 font-semibold">
-                    <MessageSquare className="h-4 w-4" /> {post.commentsCount} Comments
-                  </span>
-                </div>
-              </CardFooter>
+                <CardHeader>
+                    <CardTitle className="text-2xl font-headline">{post.title}</CardTitle>
+                    <div className="flex items-center gap-4 text-sm text-muted-foreground pt-2">
+                        <span className="flex items-center gap-1"><User className="h-4 w-4" />{post.author}</span>
+                        <span className="flex items-center gap-1">
+                          <Clock className="h-4 w-4" />
+                          {formattedDate}
+                        </span>
+                    </div>
+                </CardHeader>
+                <CardContent className="prose prose-sm max-w-none text-foreground/90 leading-relaxed">
+                   <p>{post.content}</p>
+                </CardContent>
+                <CardFooter className="flex justify-between items-center bg-muted/50 py-3">
+                    <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                        <span className="flex items-center gap-1 font-semibold"><ThumbsUp className="h-4 w-4" /> {post.votes} Votes</span>
+                        <span className="flex items-center gap-1 font-semibold"><MessageSquare className="h-4 w-4" /> {post.commentsCount} Comments</span>
+                    </div>
+                </CardFooter>
             </Card>
+
             <div className="mt-8">
-              <CommentSection postId={post.id} />
+                <CommentSection postId={post.id} />
             </div>
+
           </div>
         </div>
       </main>
