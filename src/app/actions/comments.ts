@@ -36,3 +36,4 @@ export async function saveComment(postId: string, content: string) {
     return { success: false, error: 'Failed to save comment.' };
   }
 }
+
