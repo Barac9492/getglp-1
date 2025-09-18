@@ -1,0 +1,16 @@
+{
+  "node": {
+    "400699113da48f30cd7b9e42e88cb3b6590270b6bb": {
+      "workers": {
+        "app/map/page": {
+          "moduleId": "[project]/.next-internal/server/app/map/page/actions.js { ACTIONS_MODULE0 => \"[project]/src/ai/flows/availability-prediction.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false
+        }
+      },
+      "layer": {
+        "app/map/page": "action-browser"
+      }
+    }
+  },
+  "edge": {}
+}
